@@ -32,7 +32,7 @@ spring:
           predicates:
             - Path=/api/auth/**
           filters:
-            - RewritePath=/api/auth/(?<segment>.*), /${segment}
+            - StripPrefix=2
             - AddRequestHeader=X-Forwarded-Prefix, /api/auth
         - id: user-service
           uri: lb://user-service

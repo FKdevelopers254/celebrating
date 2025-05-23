@@ -1,246 +1,147 @@
-# Spring Cloud Microservices Project
+# Celebrating Microservices
 
-This project demonstrates a microservices architecture using Spring Cloud, consisting of the following services:
+A microservices-based application with authentication, user management, and other features.
 
-## Infrastructure Services
-1. Config Server (Port 8888)
-2. Service Registry (Eureka) (Port 8761)
-3. API Gateway (Port 8080)
+## Services Overview
 
-## Backend Services for Flutter App
-4. Auth Service (Port 8081) - Handles authentication and authorization
-5. User Service (Port 8082) - Manages user profiles and related operations
-6. Post Service (Port 8083) - Manages posts and related content
-7. Messaging Service (Port 8084) - Handles real-time messaging between users
-8. News Feed Service (Port 8085) - Aggregates and delivers news feeds to users
-9. Notification Service (Port 8086) - Manages user notifications
-10. Award Service (Port 8087) - Handles user awards and achievements
-11. Rating-Review Service (Port 8088) - Manages ratings and reviews for posts/users
-12. Analytics-Logging Service (Port 8089) - Collects analytics and logging data
-13. Moderation Service (Port 8090) - Handles content moderation and reports
-14. Search Service (Port 8091) - Provides search functionality for users and posts
+1. Service Registry (Eureka) - Port 8761
+2. API Gateway - Port 8080
+3. Auth Service - Port 8081
+4. User Service - Port 8082
+5. Post Service - Port 8083
+6. Messaging Service - Port 8084
+7. Search Service - Port 8088
+8. Rating & Review Service - Port 8090
+9. Analytics & Logging Service - Port 8091
 
 ## Prerequisites
 
-- Java 17 or later
-- Gradle 8.x
-- Git
-- PostgreSQL 14 or later
-- Flutter (for web app development)
-- Chrome browser (for Flutter web app)
+- Java 17
+- PostgreSQL 15+
+- Gradle
+- Docker (optional)
 
-## Project Structure
+## Database Setup
 
-```
-celebrating-microservices-main/
-├── config-server/         # Spring Cloud Config Server
-├── service-registry/      # Eureka Service Registry
-├── api-gateway/           # Spring Cloud Gateway
-├── auth-service/          # Authentication & Authorization Service
-├── user-service/          # User Management Service
-├── post-service/          # Post Management Service
-├── messaging-service/     # Real-time Messaging Service
-├── news-feed-service/     # News Feed Service
-├── notification-service/  # Notification Service
-├── award-service/         # Award Service
-├── rating-review-service/ # Rating & Review Service
-├── analytics-logging-service/ # Analytics & Logging Service
-├── moderation-service/    # Moderation Service
-├── search-service/        # Search Service
-├── celebrate/             # Flutter Web Application
-├── config-repo/           # Configuration Repository
-└── docker/                # Docker configuration files
+1. Install PostgreSQL if not already installed
+2. Create the database:
+```sql
+CREATE DATABASE celebratedb;
 ```
 
-## Step-by-Step Setup Guide
+## Service Startup Sequence
 
-### 1. Database Setup
+For proper functionality, start the services in the following order:
 
-1. Install PostgreSQL 14 or later
-2. Run the database setup script:
-   ```bash
-   setup_database.bat
-   ```
-   This will:
-   - Create the following databases:
-     - `celebratedb` (core services)
-     - `celebrate_news_feed`
-     - `celebrate_notification`
-     - `celebrate_award`
-     - `celebrate_rating_review`
-     - `celebrate_analytics`
-     - `celebrate_moderation`
-     - `celebrate_search`
-   - Set up required extensions
-   - Create necessary tables and indexes
-
-### 2. Build All Services
-
-1. Open a terminal in the project root directory
-2. Build all services:
-   ```bash
-   gradlew clean build
-   ```
-
-### 3. Start All Services
-
-The easiest way to start all services is using the provided batch script:
-
+1. **Service Registry (Eureka)**
 ```bash
-start-services.bat
+cd service-registry
+./gradlew bootRun
 ```
 
-This script will:
-1. Start Config Server (Port 8888)
-2. Start Service Registry (Port 8761)
-3. Start Auth Service (Port 8081)
-4. Start User Service (Port 8082)
-5. Start Post Service (Port 8083)
-6. Start Messaging Service (Port 8084)
-7. Start News Feed Service (Port 8085)
-8. Start Notification Service (Port 8086)
-9. Start Award Service (Port 8087)
-10. Start Rating-Review Service (Port 8088)
-11. Start Analytics-Logging Service (Port 8089)
-12. Start Moderation Service (Port 8090)
-13. Start Search Service (Port 8091)
-14. Start API Gateway (Port 8080)
-15. Start Flutter Web App (Port 53042)
+2. **API Gateway**
+```bash
+cd api-gateway
+./gradlew bootRun
+```
 
-### 4. Verify Services
+3. **Auth Service**
+```bash
+cd auth-service
+./gradlew bootRun
+```
 
-After starting all services, verify they are running correctly:
+4. **Other Services** (can be started in any order after the above)
+```bash
+cd user-service
+./gradlew bootRun
+```
 
-1. Config Server:
-   - Health check: http://localhost:8888/actuator/health
-   - Expected response: `{"status":"UP"}`
+## API Endpoints
 
-2. Service Registry (Eureka):
-   - Dashboard: http://localhost:8761
-   - Verify all services are registered
+### Auth Service
+- Register: POST http://localhost:8080/api/auth/register
+  ```json
+  {
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "password123"
+  }
+  ```
+- Login: POST http://localhost:8080/api/auth/login
+  ```json
+  {
+    "email": "test@example.com",
+    "password": "password123"
+  }
+  ```
 
-3. API Gateway:
-   - Health check: http://localhost:8080/actuator/health
-   - Should be registered with Eureka
+## Configuration Notes
 
-4. Flutter Web App:
-   - Open: http://localhost:53042
-   - Should load the web interface
+1. **API Gateway Routes**
+   - All requests are routed through the API Gateway (port 8080)
+   - Auth service routes: /api/auth/**
+   - User service routes: /api/users/**
+   - Post service routes: /api/posts/**
+   - Messaging service routes: /api/messages/**
 
-### 5. Access Points
+2. **CORS Configuration**
+   - CORS is handled at the API Gateway level
+   - Allowed origins: localhost and 127.0.0.1
+   - Allowed methods: GET, POST, PUT, DELETE, OPTIONS, HEAD
+   - Credentials are allowed
+   - Max age: 3600 seconds
 
-- Eureka Dashboard: http://localhost:8761
-- API Gateway: http://localhost:8080
-- Flutter Web App: http://localhost:53042
+3. **Database Configuration**
+   - URL: jdbc:postgresql://localhost:5432/celebratedb
+   - Username: postgres
+   - Password: postgres
+   - Each service manages its own schema
 
-## Manual Service Start (Alternative)
-
-If you prefer to start services manually, follow this order:
-
-1. Config Server:
-   ```bash
-   cd config-server
-   gradlew bootRun
-   ```
-
-2. Service Registry:
-   ```bash
-   cd service-registry
-   gradlew bootRun
-   ```
-
-3. Backend Services (in separate terminals, in this order):
-   ```bash
-   cd auth-service
-   gradlew bootRun
-
-   cd user-service
-   gradlew bootRun
-
-   cd post-service
-   gradlew bootRun
-
-   cd messaging-service
-   gradlew bootRun
-
-   cd news-feed-service
-   gradlew bootRun
-
-   cd notification-service
-   gradlew bootRun
-
-   cd award-service
-   gradlew bootRun
-
-   cd rating-review-service
-   gradlew bootRun
-
-   cd analytics-logging-service
-   gradlew bootRun
-
-   cd moderation-service
-   gradlew bootRun
-
-   cd search-service
-   gradlew bootRun
-   ```
-
-4. API Gateway:
-   ```bash
-   cd api-gateway
-   gradlew bootRun
-   ```
-
-5. Flutter Web App:
-   ```bash
-   cd celebrate
-   flutter run -d chrome
-   ```
+4. **Service Discovery**
+   - All services register with Eureka (http://localhost:8761)
+   - Health checks are enabled
+   - Services use the hostname: localhost
 
 ## Troubleshooting
 
-1. **Service Start Order**: Always ensure services are started in the correct order:
-   - Config Server first
-   - Service Registry second
-   - Backend services (see above order)
-   - API Gateway last
-   - Flutter Web App last
+1. **Service Registration Issues**
+   - Ensure Service Registry (Eureka) is running first
+   - Check if services are visible in Eureka dashboard (http://localhost:8761)
+   - Verify correct service names in application.yml files
 
-2. **Port Conflicts**: Make sure no other applications are using the required ports:
-   - 8888 (Config Server)
-   - 8761 (Eureka)
-   - 8080 (API Gateway)
-   - 8081-8091 (Backend Services)
-   - 53042 (Flutter Web App)
+2. **API Gateway Issues**
+   - Check if services are registered in Eureka
+   - Verify route configurations in api-gateway/application.yml
+   - Check service health endpoints
 
-3. **Database Issues**:
+3. **Database Issues**
    - Verify PostgreSQL is running
-   - Check database credentials in configuration
-   - Ensure all databases are created using setup_database.bat
+   - Check database exists and is accessible
+   - Verify database credentials in application.yml files
 
-4. **Common Issues**:
-   - If services fail to start, check the logs in their respective windows
-   - Ensure all Gradle builds are successful
-   - Verify Config Server can access its configuration repository
+## Monitoring
 
-## Technology Stack
+- Each service exposes actuator endpoints
+- Health check: /actuator/health
+- Metrics: /actuator/metrics
+- Environment: /actuator/env
 
-- Spring Boot 3.x
-- Spring Cloud 2023.x
-- PostgreSQL 14+
-- Flutter (Web)
-- Netflix Eureka for service discovery
-- Spring Cloud Config for centralized configuration
-- Spring Cloud Gateway for API routing
-- JWT for authentication
-- WebSocket for real-time messaging
+## Development Notes
 
-## Stopping Services
+1. **Adding New Services**
+   - Add service configuration to API Gateway
+   - Configure Eureka client in the new service
+   - Add appropriate security configuration
+   - Update database schema if needed
 
-To stop all services:
-1. Press `Ctrl+C` in each service window
-2. Close the Chrome window running the Flutter web app
+2. **Security**
+   - JWT authentication is implemented
+   - Tokens are required for protected endpoints
+   - CORS is configured at the API Gateway level
 
-## Contributing
+## Logging
 
-Feel free to submit issues and enhancement requests. 
+- All services use Spring Boot's default logging
+- Log levels can be adjusted in application.yml
+- Gateway logs are set to DEBUG level for troubleshooting
