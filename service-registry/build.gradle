@@ -31,3 +31,7 @@ dependencyManagement {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+bootRun {
+    mainClass = 'com.celebrating.registry.ServiceRegistryApplication'
+}

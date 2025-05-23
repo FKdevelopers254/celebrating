@@ -33,3 +33,7 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+bootRun {
+    mainClass = 'com.celebrating.config.ConfigServerApplication'
+}
+

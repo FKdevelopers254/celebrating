@@ -13,7 +13,7 @@ class HomeFeed extends StatefulWidget {
 
 class _HomeFeedState extends State<HomeFeed>
     with SingleTickerProviderStateMixin {
-  // final user = FirebaseAuth.instance.currentUser!;
+ // final user = FirebaseAuth.instance.currentUser!;
   late TabController tabController;
   @override
   void initState() {
@@ -92,45 +92,45 @@ class _HomeFeedState extends State<HomeFeed>
                   child: Text(
                     'Lifestyle',
                     style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 15.0,
-                    ),
+                    fontFamily: 'Montserrat',
+                    fontSize: 15.0,
+                  ),
                   ),
                 ),
                 Tab(
                   child: Text(
                     'Music',
                     style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 15.0,
-                    ),
+                    fontFamily: 'Montserrat',
+                    fontSize: 15.0,
+                  ),
                   ),
                 ),
                 Tab(
                   child: Text(
                     'Sports',
                     style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 15.0,
-                    ),
+                    fontFamily: 'Montserrat',
+                    fontSize: 15.0,
+                  ),
                   ),
                 ),
                 Tab(
                   child: Text(
                     'Faith',
                     style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 15.0,
-                    ),
+                    fontFamily: 'Montserrat',
+                    fontSize: 15.0,
+                  ),
                   ),
                 ),
                 Tab(
                   child: Text(
                     'Personality',
                     style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 15.0,
-                    ),
+                    fontFamily: 'Montserrat',
+                    fontSize: 15.0,
+                  ),
                   ),
                 ),
               ],
@@ -140,27 +140,27 @@ class _HomeFeedState extends State<HomeFeed>
             ),
             Container(
               color: Colors.white,
-              //  color: Theme.of(context).colorScheme.primary,
+            //  color: Theme.of(context).colorScheme.primary,
               height: MediaQuery.of(context).size.height,
               child: TabBarView(
                 controller: tabController,
                 children: <Widget>[
-                  Container(
-                    child: Column(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20.0),
+                 Container(
+                   child: Column(
+                     children: [
+                       Container(
+                         decoration: BoxDecoration(
+                           borderRadius: BorderRadius.circular(20.0),
                             border: Border.all(color: Colors.grey),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    CircleAvatar(
+                         ),
+                         child: Padding(
+                           padding: const EdgeInsets.all(8.0),
+                           child: Row(
+                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                             children: [
+                               Row(
+                                 children: [
+                                   CircleAvatar(
                                       backgroundImage:
                                           AssetImage('lib/images/img.png'),
                                     ),
@@ -174,38 +174,38 @@ class _HomeFeedState extends State<HomeFeed>
                                   ],
                                 ),
                                 Row(
-                                  children: [
+                                 children: [
                                     Icon(
                                       Icons.search,
                                       size: 40,
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: CircleAvatar(
+                             ],
+                           ),
+                         ),
+                       ),
+                       Column(
+                         children: [
+                           Padding(
+                             padding: const EdgeInsets.all(8.0),
+                             child: Column(
+                               children: [
+                                 Row(
+                                   children: [
+                                     Padding(
+                                       padding: const EdgeInsets.all(8.0),
+                                       child: CircleAvatar(
                                           backgroundImage:
                                               AssetImage('lib/images/feed.png'),
-                                        ),
-                                      ),
-                                      Column(
+                                       ),
+                                     ),
+                                     Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        children: [
+                                       children: [
                                           Text(
                                             'Emmo Johnson',
                                             style: GoogleFonts.andika(
@@ -217,31 +217,31 @@ class _HomeFeedState extends State<HomeFeed>
                                                 fontSize: 14,
                                                 color: Colors.grey),
                                           ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Container(
-                                            width: screenWidth * 0.92,
+                                       ],
+                                     )
+                                   ],
+                                 ),
+                                 Row(
+                                   children: [
+                                     Padding(
+                                       padding: const EdgeInsets.all(8.0),
+                                       child: Container(
+                                          width: screenWidth * 0.92,
                                             child: Text(
                                                 'I am anticipating my award win tonight for celebrations hope to see many of you.',
                                                 style: GoogleFonts.andika(),
                                                 maxLines: 3,
                                                 overflow:
                                                     TextOverflow.ellipsis)),
-                                      ),
-                                    ],
-                                  ),
-                                  Stack(
-                                    children: [
-                                      Container(
-                                          height: screenHeight * 0.2,
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
+                                     ),
+                                   ],
+                                 ),
+                                 Stack(
+                                   children: [
+                                     Container(
+                                       height: screenHeight * 0.2,
+                                         width: double.infinity,
+                                         decoration: BoxDecoration(
                                               borderRadius:
                                                   BorderRadius.circular(20.0),
                                               border: Border.all(
@@ -252,24 +252,24 @@ class _HomeFeedState extends State<HomeFeed>
                                                 ),
                                                 fit: BoxFit.cover,
                                               )),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10.0),
-                                          )),
+                                         child: Padding(
+                                           padding: const EdgeInsets.all(10.0),
+                                         )),
                                       Positioned(
                                           left: screenWidth * 0.35,
                                           bottom: 10,
                                           child: Container(
-                                            decoration: BoxDecoration(
+                                       decoration: BoxDecoration(
                                               borderRadius:
                                                   BorderRadius.circular(20.0),
                                               color:
                                                   Colors.white.withOpacity(0.5),
-                                            ),
-                                            child: Padding(
+                                       ),
+                                       child: Padding(
                                               padding:
                                                   const EdgeInsets.all(8.0),
-                                              child: Row(
-                                                children: [
+                                         child: Row(
+                                           children: [
                                                   Icon(
                                                     Icons.star,
                                                     size: 20,
@@ -295,20 +295,20 @@ class _HomeFeedState extends State<HomeFeed>
                                                     size: 20,
                                                     color: Colors.grey,
                                                   ),
-                                                ],
-                                              ),
-                                            ),
-                                          )),
-                                    ],
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
+                                           ],
+                                         ),
+                                       ),
+                                     )),
+                                   ],
+                                 ),
+                                 Padding(
+                                   padding: const EdgeInsets.all(8.0),
+                                   child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
+                                     children: [
+                                       Row(
+                                         children: [
                                             Icon(
                                               Icons.favorite_border,
                                               color: Colors.orange,
@@ -317,61 +317,61 @@ class _HomeFeedState extends State<HomeFeed>
                                               'Event',
                                               style: GoogleFonts.andika(),
                                             ),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
+                                         ],
+                                       ),
+                                       Row(
+                                         children: [
                                             Icon(
                                               Icons.favorite,
                                               color: Colors.orange,
                                             ),
                                             Text('68',
                                                 style: GoogleFonts.andika()),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
+                                         ],
+                                       ),
+                                       Row(
+                                         children: [
                                             Icon(
                                               Icons.message,
                                               color: Colors.orange,
                                             ),
                                             Text('14k',
                                                 style: GoogleFonts.andika()),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
+                                         ],
+                                       ),
+                                       Row(
+                                         children: [
                                             Icon(
                                               Icons.more_horiz,
                                               color: Colors.orange,
                                             ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: CircleAvatar(
+                                         ],
+                                       ),
+                                     ],
+                                   ),
+                                 )
+                               ],
+                             ),
+                           ),
+                           Padding(
+                             padding: const EdgeInsets.all(8.0),
+                             child: Column(
+                               children: [
+                                 Row(
+                                   children: [
+                                     Padding(
+                                       padding: const EdgeInsets.all(8.0),
+                                       child: CircleAvatar(
                                           backgroundImage:
                                               AssetImage('lib/images/feed.png'),
-                                        ),
-                                      ),
-                                      Column(
+                                       ),
+                                     ),
+                                     Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        children: [
+                                       children: [
                                           Text(
                                             'David Williams',
                                             style: GoogleFonts.andika(
@@ -383,58 +383,58 @@ class _HomeFeedState extends State<HomeFeed>
                                                 fontSize: 14,
                                                 color: Colors.grey),
                                           ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Container(
-                                            width: screenWidth * 0.92,
+                                       ],
+                                     )
+                                   ],
+                                 ),
+                                 Row(
+                                   children: [
+                                     Padding(
+                                       padding: const EdgeInsets.all(8.0),
+                                       child: Container(
+                                           width: screenWidth * 0.92,
                                             child: Text(
                                               'Going for vacation suggest destination? I need warm place with sandy beaches',
                                               style: GoogleFonts.andika(),
                                               overflow: TextOverflow.ellipsis,
                                               maxLines: 4,
                                             )),
-                                      ),
-                                    ],
-                                  ),
-                                  Stack(
-                                    children: [
-                                      Container(
-                                          height: screenHeight * 0.2,
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
+                                     ),
+                                   ],
+                                 ),
+                                 Stack(
+                                   children: [
+                                     Container(
+                                         height: screenHeight * 0.2,
+                                         width: double.infinity,
+                                         decoration: BoxDecoration(
                                               borderRadius:
                                                   BorderRadius.circular(20.0),
-                                              //    border: Border.all(color: Colors.grey  ),
+                                         //    border: Border.all(color: Colors.grey  ),
                                               image: DecorationImage(
                                                 image: AssetImage(
                                                   'lib/images/feed.png',
                                                 ),
                                                 fit: BoxFit.cover,
                                               )),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(10.0),
-                                          )),
+                                         child: Padding(
+                                           padding: const EdgeInsets.all(10.0),
+                                         )),
                                       Positioned(
                                           left: screenWidth * 0.35,
                                           bottom: 10,
                                           child: Container(
-                                            decoration: BoxDecoration(
+                                       decoration: BoxDecoration(
                                               borderRadius:
                                                   BorderRadius.circular(20.0),
                                               color:
                                                   Colors.white.withOpacity(0.5),
-                                            ),
-                                            child: Padding(
+                                       ),
+                                       child: Padding(
                                               padding:
                                                   const EdgeInsets.all(8.0),
-                                              child: Row(
-                                                children: [
+                                         child: Row(
+                                           children: [
                                                   Icon(
                                                     Icons.star,
                                                     size: 20,
@@ -460,20 +460,20 @@ class _HomeFeedState extends State<HomeFeed>
                                                     size: 20,
                                                     color: Colors.grey,
                                                   ),
-                                                ],
-                                              ),
-                                            ),
-                                          )),
-                                    ],
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
+                                           ],
+                                         ),
+                                       ),
+                                     )),
+                                   ],
+                                 ),
+                                 Padding(
+                                   padding: const EdgeInsets.all(8.0),
+                                   child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                          children: [
+                                     children: [
+                                       Row(
+                                         children: [
                                             Icon(
                                               Icons.favorite_border,
                                               color: Colors.orange,
@@ -482,59 +482,59 @@ class _HomeFeedState extends State<HomeFeed>
                                               'Event',
                                               style: GoogleFonts.andika(),
                                             ),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
+                                         ],
+                                       ),
+                                       Row(
+                                         children: [
                                             Icon(
                                               Icons.favorite,
                                               color: Colors.orange,
                                             ),
                                             Text('68',
                                                 style: GoogleFonts.andika()),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
+                                         ],
+                                       ),
+                                       Row(
+                                         children: [
                                             Icon(
                                               Icons.message,
                                               color: Colors.orange,
                                             ),
                                             Text('14k',
                                                 style: GoogleFonts.andika()),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
+                                         ],
+                                       ),
+                                       Row(
+                                         children: [
                                             Icon(
                                               Icons.more_horiz,
                                               color: Colors.orange,
                                             ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  Container(
-                    child: Text('data'),
-                  ),
-                  Container(
-                    child: Text('data'),
-                  ),
-                  Container(
-                    child: Text('data'),
-                  ),
-                  Container(
-                    child: Text('data'),
-                  ),
+                                         ],
+                                       ),
+                                     ],
+                                   ),
+                                 )
+                               ],
+                             ),
+                           ),
+                         ],
+                       )
+                     ],
+                   ),
+                 ),
+                 Container(
+                   child: Text('data'),
+                 ),
+                 Container(
+                   child: Text('data'),
+                 ),
+                 Container(
+                   child: Text('data'),
+                 ),
+                 Container(
+                   child: Text('data'),
+                 ),
                   //   DevtTab(),
                   //   EventsTabLocation(),
                 ],
