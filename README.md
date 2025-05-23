@@ -1,25 +1,89 @@
 # Celebrating Microservices
 
-A microservices-based application with authentication, user management, and other features.
+A comprehensive microservices-based application for celebrating achievements and milestones.
 
 ## Services Overview
 
-1. Service Registry (Eureka) - Port 8761
-2. API Gateway - Port 8080
-3. Auth Service - Port 8081
-4. User Service - Port 8082
-5. Post Service - Port 8083
-6. Messaging Service - Port 8084
-7. Search Service - Port 8088
-8. Rating & Review Service - Port 8090
-9. Analytics & Logging Service - Port 8091
+1. **Service Registry (Eureka)** - Port 8761
+   - Service discovery and registration
+   - Health monitoring
+   - Load balancing support
+
+2. **Config Server** - Port 8888
+   - Centralized configuration management
+   - Git-based config repository
+   - Dynamic configuration updates
+
+3. **API Gateway** - Port 8080
+   - Request routing
+   - Load balancing
+   - Global CORS configuration
+   - Authentication filter
+   - Rate limiting
+
+4. **Auth Service** - Port 8081
+   - User authentication
+   - JWT token management
+   - User registration
+   - Password encryption (BCrypt)
+
+5. **User Service** - Port 8082
+   - User profile management
+   - User preferences
+   - Account settings
+
+6. **Post Service** - Port 8083
+   - Create and manage posts
+   - Media handling
+   - Post interactions
+
+7. **Messaging Service** - Port 8084
+   - Real-time messaging
+   - Chat functionality
+   - Notifications integration
+
+8. **News Feed Service** - Port 8085
+   - Personalized feed generation
+   - Content aggregation
+   - Feed preferences
+
+9. **Moderation Service** - Port 8086
+   - Content moderation
+   - Report handling
+   - Community guidelines enforcement
+
+10. **Notification Service** - Port 8087
+    - Push notifications
+    - Email notifications
+    - In-app notifications
+
+11. **Search Service** - Port 8088
+    - Full-text search
+    - Advanced filtering
+    - Search analytics
+
+12. **Award Service** - Port 8089
+    - Achievement management
+    - Badge system
+    - Rewards tracking
+
+13. **Rating & Review Service** - Port 8090
+    - User ratings
+    - Review management
+    - Reputation system
+
+14. **Analytics & Logging Service** - Port 8091
+    - User analytics
+    - System metrics
+    - Audit logging
 
 ## Prerequisites
 
-- Java 17
+- Java 17 or higher
 - PostgreSQL 15+
-- Gradle
+- Gradle 7.x
 - Docker (optional)
+- Node.js 18+ (for frontend)
 
 ## Database Setup
 
@@ -27,6 +91,11 @@ A microservices-based application with authentication, user management, and othe
 2. Create the database:
 ```sql
 CREATE DATABASE celebratedb;
+```
+3. Run the database setup script:
+```bash
+./setup_database.bat  # Windows
+./setup_database.sh   # Linux/Mac
 ```
 
 ## Service Startup Sequence
@@ -39,42 +108,115 @@ cd service-registry
 ./gradlew bootRun
 ```
 
-2. **API Gateway**
+2. **Config Server**
+```bash
+cd config-server
+./gradlew bootRun
+```
+
+3. **API Gateway**
 ```bash
 cd api-gateway
 ./gradlew bootRun
 ```
 
-3. **Auth Service**
+4. **Auth Service**
 ```bash
 cd auth-service
 ./gradlew bootRun
 ```
 
-4. **Other Services** (can be started in any order after the above)
+5. **Core Services** (can be started in any order)
 ```bash
+# Start each in a separate terminal
 cd user-service
+./gradlew bootRun
+
+cd post-service
+./gradlew bootRun
+
+cd messaging-service
 ./gradlew bootRun
 ```
 
-## API Endpoints
+6. **Supporting Services** (can be started in any order)
+```bash
+# Start each in a separate terminal
+cd notification-service
+./gradlew bootRun
 
-### Auth Service
-- Register: POST http://localhost:8080/api/auth/register
-  ```json
-  {
-    "username": "testuser",
-    "email": "test@example.com",
-    "password": "password123"
-  }
-  ```
-- Login: POST http://localhost:8080/api/auth/login
-  ```json
-  {
-    "email": "test@example.com",
-    "password": "password123"
-  }
-  ```
+cd search-service
+./gradlew bootRun
+
+cd award-service
+./gradlew bootRun
+
+cd rating-review-service
+./gradlew bootRun
+
+cd analytics-logging-service
+./gradlew bootRun
+
+cd news-feed-service
+./gradlew bootRun
+
+cd moderation-service
+./gradlew bootRun
+```
+
+## Quick Start (Using Scripts)
+
+Windows:
+```bash
+start-services.bat
+```
+
+Linux/Mac:
+```bash
+./start-services.sh
+```
+
+## API Documentation
+
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- API Documentation: http://localhost:8080/api-docs
+
+## Monitoring
+
+- Eureka Dashboard: http://localhost:8761
+- Spring Boot Admin: http://localhost:8080/admin
+- Actuator Endpoints: Available on each service at /actuator
+
+## Testing
+
+Each service includes:
+- Unit tests
+- Integration tests
+- API tests (Postman collections in /postman directory)
+
+## Docker Support
+
+Build all services:
+```bash
+docker-compose build
+```
+
+Run the entire stack:
+```bash
+docker-compose up -d
+```
+
+## Kubernetes Support
+
+Deployment manifests are available in the `k8s` directory.
+
+## Contributing
+
+Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Configuration Notes
 
@@ -119,13 +261,6 @@ cd user-service
    - Verify PostgreSQL is running
    - Check database exists and is accessible
    - Verify database credentials in application.yml files
-
-## Monitoring
-
-- Each service exposes actuator endpoints
-- Health check: /actuator/health
-- Metrics: /actuator/metrics
-- Environment: /actuator/env
 
 ## Development Notes
 
