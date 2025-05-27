@@ -1,18 +1,16 @@
 spring:
   application:
-    name: post-service
+    name: search-service
   config:
-    import: "optional:configserver:"
-  r2dbc:
-    url: r2dbc:mysql://localhost:3306/celebrating
-    username: root
-    password: root
+    import: "optional:configserver:http://localhost:8888/"
+  elasticsearch:
+    uris: http://localhost:9200
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
     enabled: true
 
 server:
-  port: 8083
+  port: 8088
 
 eureka:
   client:
@@ -22,7 +20,6 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
-    hostname: localhost
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
 
