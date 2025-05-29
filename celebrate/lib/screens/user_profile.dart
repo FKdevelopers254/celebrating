@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'providers/AuthProvider.dart';
-import 'models/user.dart';
+import '../providers/AuthProvider.dart';
+import '../models/user.dart';
 
 class UserProfile extends StatelessWidget {
   @override

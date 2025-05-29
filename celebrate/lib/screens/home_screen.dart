@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
-import '../admin/celebrityprofilemanagement.dart';
-import '../celebrityfeed.dart';
+import 'package:provider/provider.dart';
+import '../providers/AuthProvider.dart';
+import '../celebrityprofile.dart';
+import '../userprofile.dart';
+import '../login.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,7 +13,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final AuthService _authService = AuthService();
   bool _isLoading = true;
   Widget? _destinationScreen;
 
@@ -23,14 +24,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _checkUserRole() async {
     try {
-      final userRole = await _authService.getCurrentUserRole();
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      await auth.loadToken();
       setState(() {
         _isLoading = false;
-        if (userRole == UserRole.celebrity) {
-          _destinationScreen = const CelebrityProfile(); // For celebrities
-        } else {
-          _destinationScreen = const CelebrityFeed(); // For regular users
-        }
+        _destinationScreen = auth.role == 'celebrity' ? CelebrityProfile() : UserProfile();
       });
     } catch (e) {
       setState(() {
@@ -61,9 +59,11 @@ class _HomeScreenState extends State<HomeScreen> {
               const Text('Error loading user data'),
               ElevatedButton(
                 onPressed: () async {
-                  await _authService.logout();
-                  // Navigate to login screen
-                  // You'll need to implement this navigation
+                  await Provider.of<AuthProvider>(context, listen: false).logout();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                  );
                 },
                 child: const Text('Logout'),
               ),

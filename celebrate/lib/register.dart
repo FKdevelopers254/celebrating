@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'AuthService.dart';
+import '../AuthService.dart'; // Import your AuthService
 import 'login.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -18,6 +18,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
+  bool _isCelebrity = false; // Track selected role
 
   Future<void> _register() async {
     if (_formKey.currentState!.validate()) {
@@ -33,13 +34,15 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() => _isLoading = true);
 
       try {
-        print('Starting registration process...'); // Debug log
+        print('Starting registration process...');
+        print('Registering with: username=${_usernameController.text}, email=${_emailController.text}, role=${_isCelebrity ? "CELEBRITY" : "USER"}');
         final result = await AuthService.registerUser(
           _usernameController.text,
           _emailController.text,
           _passwordController.text,
+          role: _isCelebrity ? "CELEBRITY" : "USER",
         );
-        print('Registration result: $result'); // Debug log
+        print('Registration result: $result');
 
         if (result['success']) {
           if (!mounted) return;
@@ -56,8 +59,7 @@ class _RegisterPageState extends State<RegisterPage> {
           if (!mounted) return;
           String errorMsg = result['message'] ?? "Registration failed.";
           if (result['details'] != null) {
-            print(
-                'Registration error details: ${result['details']}'); // Debug log
+            print('Registration error details: ${result['details']}');
             errorMsg += '\nDetails: ${result['details']}';
           }
           Fluttertoast.showToast(
@@ -67,10 +69,10 @@ class _RegisterPageState extends State<RegisterPage> {
           );
         }
       } catch (e) {
-        print('Registration error in UI: $e'); // Debug log
+        print('Registration error in UI: $e');
         if (!mounted) return;
         Fluttertoast.showToast(
-          msg: "An error occurred. Please try again later.",
+          msg: "An error occurred: $e. Please try again later.",
           backgroundColor: Colors.red,
           toastLength: Toast.LENGTH_LONG,
         );
@@ -85,7 +87,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: Colors.amber[600], // Gold background
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -321,6 +323,64 @@ class _RegisterPageState extends State<RegisterPage> {
             }
             return null;
           },
+        ),
+        SizedBox(height: 24),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Account Type',
+                style: GoogleFonts.andika(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: RadioListTile<bool>(
+                      title: Text(
+                        'Regular User',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      value: false,
+                      groupValue: _isCelebrity,
+                      activeColor: Colors.white,
+                      onChanged: (value) {
+                        setState(() {
+                          _isCelebrity = value!;
+                        });
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: RadioListTile<bool>(
+                      title: Text(
+                        'Celebrity',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      value: true,
+                      groupValue: _isCelebrity,
+                      activeColor: Colors.white,
+                      onChanged: (value) {
+                        setState(() {
+                          _isCelebrity = value!;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ],
     );

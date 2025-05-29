@@ -14,19 +14,20 @@ class AuthService {
 
   static const String tokenKey = 'auth_token';
 
-  // Store the token in SharedPreferences
-  static Future<void> _saveToken(String token) async {
+  static Future<void> _saveToken(String? token) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(tokenKey, token);
+    if (token != null) {
+      await prefs.setString(tokenKey, token);
+    } else {
+      await prefs.remove(tokenKey);
+    }
   }
 
-  // Get the stored token
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(tokenKey);
   }
 
-  // Clear the stored token
   static Future<void> clearToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(tokenKey);
@@ -79,7 +80,6 @@ class AuthService {
             response = await http.delete(uri, headers: requestHeaders);
             break;
           case 'OPTIONS':
-            // For OPTIONS request, we'll use a custom request
             final request = http.Request('OPTIONS', uri);
             request.headers.addAll(requestHeaders);
             final streamedResponse = await request.send();
@@ -128,14 +128,14 @@ class AuthService {
   }
 
   static Future<Map<String, dynamic>> registerUser(
-      String username, String email, String password) async {
+      String username, String email, String password,
+      {String role = "USER"}) async {
     try {
-      print('Starting registration process...'); // Debug log
-      print('Attempting registration for user: $username'); // Debug log
-      print('Using base URL: $baseUrl'); // Debug log
-      print('Origin: $origin'); // Debug log
+      print('Starting registration process...');
+      print('Attempting registration for user: $username');
+      print('Using base URL: $baseUrl');
+      print('Origin: $origin');
 
-      // First make an OPTIONS request to check CORS
       final optionsResponse =
           await http.Request('OPTIONS', Uri.parse('$baseUrl/api/auth/register'))
             ..headers.addAll({
@@ -147,14 +147,12 @@ class AuthService {
       final optionsResponseBody =
           await optionsStreamedResponse.stream.bytesToString();
 
-      print(
-          'OPTIONS response status: ${optionsStreamedResponse.statusCode}'); // Debug log
-      print(
-          'OPTIONS response headers: ${optionsStreamedResponse.headers}'); // Debug log
-      print('OPTIONS response body: $optionsResponseBody'); // Debug log
+      print('OPTIONS response status: ${optionsStreamedResponse.statusCode}');
+      print('OPTIONS response headers: ${optionsStreamedResponse.headers}');
+      print('OPTIONS response body: $optionsResponseBody');
 
       if (optionsStreamedResponse.statusCode != 200) {
-        print('OPTIONS request failed: $optionsResponseBody'); // Debug log
+        print('OPTIONS request failed: $optionsResponseBody');
         return {
           'success': false,
           'message':
@@ -163,7 +161,6 @@ class AuthService {
         };
       }
 
-      // Make the actual POST request
       final response = await http.post(
         Uri.parse('$baseUrl/api/auth/register'),
         headers: {
@@ -175,18 +172,16 @@ class AuthService {
           'username': username,
           'email': email,
           'password': password,
+          'role': role,
         }),
       );
 
-      print(
-          'Registration response status: ${response.statusCode}'); // Debug log
-      print('Registration response body: ${response.body}'); // Debug log
+      print('Registration response status: ${response.statusCode}');
+      print('Registration response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        if (data['token'] != null) {
-          await _saveToken(data['token']);
-        }
+        await _saveToken(data['token']); // Save token if present
         return {
           'success': true,
           'message': 'Registration successful',
@@ -196,9 +191,9 @@ class AuthService {
         Map<String, dynamic> error;
         try {
           error = jsonDecode(response.body);
-          print('Registration error response: $error'); // Debug log
+          print('Registration error response: $error');
         } catch (e) {
-          print('Error parsing registration response: $e'); // Debug log
+          print('Error parsing registration response: $e');
           error = {
             'message':
                 'Registration failed: Server returned ${response.statusCode}',
@@ -213,7 +208,7 @@ class AuthService {
         };
       }
     } catch (e) {
-      print('Registration error: $e'); // Debug log
+      print('Registration error: $e');
       return {
         'success': false,
         'message':
@@ -224,14 +219,14 @@ class AuthService {
   }
 
   static Future<Map<String, dynamic>> loginUser(
-      String username, String password) async {
+      String username, String password,
+      {String role = "USER"}) async {
     try {
-      print('Starting login process...'); // Debug log
-      print('Attempting login for user: $username'); // Debug log
-      print('Using base URL: $baseUrl'); // Debug log
-      print('Origin: $origin'); // Debug log
+      print('Starting login process...');
+      print('Attempting login for user: $username');
+      print('Using base URL: $baseUrl');
+      print('Origin: $origin');
 
-      // First make an OPTIONS request to check CORS
       final optionsResponse =
           await http.Request('OPTIONS', Uri.parse('$baseUrl/api/auth/login'))
             ..headers.addAll({
@@ -243,14 +238,12 @@ class AuthService {
       final optionsResponseBody =
           await optionsStreamedResponse.stream.bytesToString();
 
-      print(
-          'OPTIONS response status: ${optionsStreamedResponse.statusCode}'); // Debug log
-      print(
-          'OPTIONS response headers: ${optionsStreamedResponse.headers}'); // Debug log
-      print('OPTIONS response body: $optionsResponseBody'); // Debug log
+      print('OPTIONS response status: ${optionsStreamedResponse.statusCode}');
+      print('OPTIONS response headers: ${optionsStreamedResponse.headers}');
+      print('OPTIONS response body: $optionsResponseBody');
 
       if (optionsStreamedResponse.statusCode != 200) {
-        print('OPTIONS request failed: $optionsResponseBody'); // Debug log
+        print('OPTIONS request failed: $optionsResponseBody');
         return {
           'success': false,
           'message':
@@ -259,7 +252,6 @@ class AuthService {
         };
       }
 
-      // Make the actual POST request
       final response = await http.post(
         Uri.parse('$baseUrl/api/auth/login'),
         headers: {
@@ -270,25 +262,32 @@ class AuthService {
         body: jsonEncode({
           'username': username,
           'password': password,
+          'role': role,
         }),
       );
 
-      print('Login response status: ${response.statusCode}'); // Debug log
-      print('Login response body: ${response.body}'); // Debug log
+      print('Login response status: ${response.statusCode}');
+      print('Login response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        if (data['token'] != null) {
-          await _saveToken(data['token']);
+        final storedRole = data['role'] as String?; // Get role from response
+        if (storedRole != null && storedRole.toUpperCase() != role.toUpperCase()) {
+          return {
+            'success': false,
+            'message': 'Role mismatch. Registered as $storedRole, attempted $role',
+            'details': 'Please select the correct role.'
+          };
         }
+        await _saveToken(data['token']); // Save token if present
         return {'success': true, 'message': 'Login successful', 'data': data};
       } else {
         Map<String, dynamic> error;
         try {
           error = jsonDecode(response.body);
-          print('Login error response: $error'); // Debug log
+          print('Login error response: $error');
         } catch (e) {
-          print('Error parsing login response: $e'); // Debug log
+          print('Error parsing login response: $e');
           error = {
             'message': 'Login failed: Server returned ${response.statusCode}',
             'details': response.body
@@ -301,7 +300,7 @@ class AuthService {
         };
       }
     } catch (e) {
-      print('Login error: $e'); // Debug log
+      print('Login error: $e');
       return {
         'success': false,
         'message':
@@ -320,7 +319,6 @@ class AuthService {
     await clearToken();
   }
 
-  // Helper method to get auth headers
   static Future<Map<String, String>> getAuthHeaders() async {
     final token = await getToken();
     return {
@@ -330,4 +328,7 @@ class AuthService {
       'Origin': origin,
     };
   }
+
+  static const String ROLE_CELEBRITY = 'CELEBRITY';
+  static const String ROLE_USER = 'USER';
 }

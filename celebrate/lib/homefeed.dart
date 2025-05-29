@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'AuthService.dart';
 import 'login.dart';
+// Ensure that login.dart exports a class named LoginPage
 
 class HomeFeed extends StatefulWidget {
   const HomeFeed({super.key});

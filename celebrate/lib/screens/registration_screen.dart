@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../services/auth_service.dart';
+import 'package:provider/provider.dart';
+import '../providers/AuthProvider.dart';
 import 'home_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -12,14 +13,11 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _authService = AuthService();
-
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _fullNameController = TextEditingController();
   final _usernameController = TextEditingController();
-
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -30,30 +28,27 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       setState(() {
         _isLoading = true;
       });
-
       try {
-        await _authService.register(
-          email: _emailController.text,
-          password: _passwordController.text,
-          fullName: _fullNameController.text,
-          username: _usernameController.text,
-          isCelebrity: _isCelebrity,
+        await Provider.of<AuthProvider>(context, listen: false).register(
+          _usernameController.text,
+          _emailController.text,
+          _passwordController.text,
+          _isCelebrity ? 'celebrity' : 'user',
         );
-
         if (!mounted) return;
-
-        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Registration successful! Please login.')),
+          const SnackBar(content: Text('Registration successful! Please login.')),
         );
-
-        // Navigate back to login screen
-        Navigator.of(context).pop();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration failed: $e')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registration failed: $e')),
+          );
+        }
       } finally {
         if (mounted) {
           setState(() {
@@ -88,8 +83,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
-
-                // Full Name
                 TextFormField(
                   controller: _fullNameController,
                   decoration: InputDecoration(
@@ -107,8 +100,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-
-                // Username
                 TextFormField(
                   controller: _usernameController,
                   decoration: InputDecoration(
@@ -129,8 +120,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-
-                // Email
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
@@ -152,8 +141,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-
-                // Password
                 TextFormField(
                   controller: _passwordController,
                   decoration: InputDecoration(
@@ -187,8 +174,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-
-                // Confirm Password
                 TextFormField(
                   controller: _confirmPasswordController,
                   decoration: InputDecoration(
@@ -222,8 +207,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   },
                 ),
                 const SizedBox(height: 24),
-
-                // Account Type Selection
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -273,8 +256,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                // Register Button
                 ElevatedButton(
                   onPressed: _isLoading ? null : _register,
                   style: ElevatedButton.styleFrom(
@@ -290,8 +271,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
                       : Text(
@@ -303,11 +283,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         ),
                 ),
                 const SizedBox(height: 16),
-
-                // Login Link
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(); // Go back to login screen
+                    Navigator.of(context).pop();
                   },
                   child: Text(
                     'Already have an account? Login',
