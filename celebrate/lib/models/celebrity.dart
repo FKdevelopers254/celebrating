@@ -1,14 +1,42 @@
+class CelebrityStats {
+  final int postsCount;
+  final int followersCount;
+  final int followingCount;
+
+  CelebrityStats({
+    required this.postsCount,
+    required this.followersCount,
+    required this.followingCount,
+  });
+
+  factory CelebrityStats.fromJson(Map<String, dynamic> json) {
+    return CelebrityStats(
+      postsCount: json['postsCount'] ?? 0,
+      followersCount: json['followersCount'] ?? 0,
+      followingCount: json['followingCount'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'postsCount': postsCount,
+      'followersCount': followersCount,
+      'followingCount': followingCount,
+    };
+  }
+}
+
 class Celebrity {
-  final int? id;
-  final String stageName;
+  final int id;
   final String fullName;
+  final String stageName;
   final String dateOfBirth;
   final String placeOfBirth;
   final String nationality;
   final String? astrologicalSign;
   final String ethnicity;
   final String netWorth;
-  final String? profileImage;
+  final String? profileImageUrl;
 
   // Career highlights
   final List<String> professions;
@@ -32,6 +60,7 @@ class Celebrity {
   final String? controversies;
   final String? fashionStyle;
   final String? quotes;
+  final String? bio;
 
   // Fun facts
   final String? tattoos;
@@ -40,17 +69,21 @@ class Celebrity {
   final String? hiddenTalents;
   final String? fanTheories;
 
+  // Status and stats
+  final bool isVerified;
+  final CelebrityStats stats;
+
   Celebrity({
-    this.id,
-    required this.stageName,
+    required this.id,
     required this.fullName,
+    required this.stageName,
     required this.dateOfBirth,
     required this.placeOfBirth,
     required this.nationality,
     this.astrologicalSign,
     required this.ethnicity,
     required this.netWorth,
-    this.profileImage,
+    this.profileImageUrl,
     required this.professions,
     required this.debutWorks,
     required this.majorAchievements,
@@ -68,62 +101,73 @@ class Celebrity {
     this.controversies,
     this.fashionStyle,
     this.quotes,
+    this.bio,
     this.tattoos,
     this.pets,
     this.favoriteThings,
     this.hiddenTalents,
     this.fanTheories,
+    this.isVerified = false,
+    required this.stats,
   });
 
   factory Celebrity.fromJson(Map<String, dynamic> json) {
     return Celebrity(
-      id: json['id'] as int?,
-      stageName: json['stageName'] as String,
-      fullName: json['fullName'] as String,
-      dateOfBirth: json['dateOfBirth'] as String,
-      placeOfBirth: json['placeOfBirth'] as String,
-      nationality: json['nationality'] as String,
-      astrologicalSign: json['astrologicalSign'] as String?,
-      ethnicity: json['ethnicity'] as String,
-      netWorth: json['netWorth'] as String,
-      profileImage: json['profileImage'] as String?,
-      professions: List<String>.from(json['professions'] as List),
-      debutWorks: List<String>.from(json['debutWorks'] as List),
-      majorAchievements: List<String>.from(json['majorAchievements'] as List),
-      notableProjects: List<String>.from(json['notableProjects'] as List),
-      collaborations: List<String>.from(json['collaborations'] as List),
-      agenciesOrLabels: List<String>.from(json['agenciesOrLabels'] as List),
-      relationships: json['relationships'] as String?,
-      familyMembers: json['familyMembers'] as String?,
-      educationBackground: json['educationBackground'] as String?,
-      hobbiesInterests: json['hobbiesInterests'] as String?,
-      lifestyleDetails: json['lifestyleDetails'] as String?,
-      philanthropy: json['philanthropy'] as String?,
-      socialMediaPresence: json['socialMediaPresence'] as String?,
-      publicImage: json['publicImage'] as String?,
-      controversies: json['controversies'] as String?,
-      fashionStyle: json['fashionStyle'] as String?,
-      quotes: json['quotes'] as String?,
-      tattoos: json['tattoos'] as String?,
-      pets: json['pets'] as String?,
-      favoriteThings: json['favoriteThings'] as String?,
-      hiddenTalents: json['hiddenTalents'] as String?,
-      fanTheories: json['fanTheories'] as String?,
+      id: json['id'],
+      fullName: json['fullName'],
+      stageName: json['stageName'],
+      dateOfBirth: json['dateOfBirth'],
+      placeOfBirth: json['placeOfBirth'],
+      nationality: json['nationality'],
+      astrologicalSign: json['astrologicalSign'],
+      ethnicity: json['ethnicity'],
+      netWorth: json['netWorth'],
+      profileImageUrl: json['profileImageUrl'],
+      professions: List<String>.from(json['professions'] ?? []),
+      debutWorks: List<String>.from(json['debutWorks'] ?? []),
+      majorAchievements: List<String>.from(json['majorAchievements'] ?? []),
+      notableProjects: List<String>.from(json['notableProjects'] ?? []),
+      collaborations: List<String>.from(json['collaborations'] ?? []),
+      agenciesOrLabels: List<String>.from(json['agenciesOrLabels'] ?? []),
+      relationships: json['relationships'],
+      familyMembers: json['familyMembers'],
+      educationBackground: json['educationBackground'],
+      hobbiesInterests: json['hobbiesInterests'],
+      lifestyleDetails: json['lifestyleDetails'],
+      philanthropy: json['philanthropy'],
+      socialMediaPresence: json['socialMediaPresence'],
+      publicImage: json['publicImage'],
+      controversies: json['controversies'],
+      fashionStyle: json['fashionStyle'],
+      quotes: json['quotes'],
+      bio: json['bio'],
+      tattoos: json['tattoos'],
+      pets: json['pets'],
+      favoriteThings: json['favoriteThings'],
+      hiddenTalents: json['hiddenTalents'],
+      fanTheories: json['fanTheories'],
+      isVerified: json['isVerified'] ?? false,
+      stats: CelebrityStats.fromJson(json['stats'] ??
+          {
+            'postsCount': 0,
+            'followersCount': 0,
+            'followingCount': 0,
+          }),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'stageName': stageName,
       'fullName': fullName,
+      'stageName': stageName,
       'dateOfBirth': dateOfBirth,
       'placeOfBirth': placeOfBirth,
       'nationality': nationality,
       'astrologicalSign': astrologicalSign,
       'ethnicity': ethnicity,
       'netWorth': netWorth,
-      'profileImage': profileImage,
+      'profileImageUrl': profileImageUrl,
       'professions': professions,
       'debutWorks': debutWorks,
       'majorAchievements': majorAchievements,
@@ -141,11 +185,14 @@ class Celebrity {
       'controversies': controversies,
       'fashionStyle': fashionStyle,
       'quotes': quotes,
+      'bio': bio,
       'tattoos': tattoos,
       'pets': pets,
       'favoriteThings': favoriteThings,
       'hiddenTalents': hiddenTalents,
       'fanTheories': fanTheories,
+      'isVerified': isVerified,
+      'stats': stats.toJson(),
     };
   }
 }

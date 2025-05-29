@@ -3,11 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../models/post.dart';
 import '../utils/constants.dart';
-import 'auth_service.dart';
+import 'package:celebrate/AuthService.dart';
 
 class PostService {
   static const String baseUrl = ApiConstants.baseUrl;
-  final AuthService _authService = AuthService();
   WebSocketChannel? _channel;
 
   // Create a new post
@@ -19,7 +18,7 @@ class PostService {
     bool isPrivate = false,
   }) async {
     try {
-      final token = await _authService.storage.read(key: 'auth_token');
+      final token = await AuthService.getToken();
 
       // If there's an image, upload it first
       String? imageUrl;
@@ -79,7 +78,7 @@ class PostService {
 
   // Connect to WebSocket for real-time updates
   void connectToWebSocket(Function(Post) onPostReceived) async {
-    final token = await _authService.storage.read(key: 'auth_token');
+    final token = await AuthService.getToken();
     final wsUrl = baseUrl.replaceFirst('http', 'ws');
 
     _channel = WebSocketChannel.connect(
@@ -117,7 +116,7 @@ class PostService {
   // Get posts by hashtag
   Future<List<Post>> getPostsByHashtag(String hashtag) async {
     try {
-      final token = await _authService.storage.read(key: 'auth_token');
+      final token = await AuthService.getToken();
 
       final response = await http.get(
         Uri.parse('$baseUrl/api/posts/hashtag/$hashtag'),
@@ -141,7 +140,7 @@ class PostService {
   // Get recent posts
   Future<List<Post>> getRecentPosts() async {
     try {
-      final token = await _authService.storage.read(key: 'auth_token');
+      final token = await AuthService.getToken();
 
       final response = await http.get(
         Uri.parse('$baseUrl/api/posts/recent'),

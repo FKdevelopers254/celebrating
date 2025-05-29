@@ -4,13 +4,104 @@ import '../models/celebrity.dart';
 import '../utils/constants.dart';
 
 class CelebrityService {
-  static const String baseUrl = ApiConstants.baseUrl;
+  final String? authToken;
+
+  CelebrityService({this.authToken});
+
+  Future<List<Celebrity>> getAllCelebrities() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/api/users/celebrities'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Celebrity.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load celebrities');
+      }
+    } catch (e) {
+      throw Exception('Error fetching celebrities: $e');
+    }
+  }
+
+  Future<List<Celebrity>> searchCelebrities(String query) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '${ApiConstants.baseUrl}/api/users/celebrities/search?query=$query'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Celebrity.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to search celebrities');
+      }
+    } catch (e) {
+      throw Exception('Error searching celebrities: $e');
+    }
+  }
+
+  Future<Celebrity> getCelebrityProfile(String userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '${ApiConstants.baseUrl}/api/users/$userId/celebrity-profile'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return Celebrity.fromJson(data);
+      } else {
+        throw Exception('Failed to load celebrity profile');
+      }
+    } catch (e) {
+      throw Exception('Error fetching celebrity profile: $e');
+    }
+  }
+
+  Future<Celebrity> updateCelebrityProfile(
+      String userId, Celebrity profile) async {
+    try {
+      final response = await http.put(
+        Uri.parse(
+            '${ApiConstants.baseUrl}/api/users/$userId/celebrity-profile'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $authToken',
+        },
+        body: json.encode(profile.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return Celebrity.fromJson(data);
+      } else {
+        throw Exception('Failed to update celebrity profile');
+      }
+    } catch (e) {
+      throw Exception('Error updating celebrity profile: $e');
+    }
+  }
 
   // Create a new celebrity profile
   Future<Celebrity> createCelebrity(Celebrity celebrity) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/celebrities'),
+        Uri.parse('${ApiConstants.baseUrl}/api/celebrities'),
         headers: {
           'Content-Type': 'application/json',
           // Add authorization header if needed
@@ -34,7 +125,7 @@ class CelebrityService {
   Future<Celebrity> updateCelebrity(int id, Celebrity celebrity) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl/api/celebrities/$id'),
+        Uri.parse('${ApiConstants.baseUrl}/api/celebrities/$id'),
         headers: {
           'Content-Type': 'application/json',
           // Add authorization header if needed
@@ -58,7 +149,7 @@ class CelebrityService {
   Future<Celebrity> getCelebrity(int id) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/api/celebrities/$id'),
+        Uri.parse('${ApiConstants.baseUrl}/api/celebrities/$id'),
         headers: {
           // Add authorization header if needed
           // 'Authorization': 'Bearer $token',
@@ -81,7 +172,7 @@ class CelebrityService {
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('$baseUrl/api/celebrities/$celebrityId/image'),
+        Uri.parse('${ApiConstants.baseUrl}/api/celebrities/$celebrityId/image'),
       );
 
       request.files.add(await http.MultipartFile.fromPath(

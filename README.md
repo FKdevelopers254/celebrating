@@ -1,282 +1,346 @@
 # Celebrating Microservices
 
-A comprehensive microservices-based application for celebrating achievements and milestones.
+A comprehensive celebrity management platform built with microservices architecture and Flutter mobile application.
 
-## Services Overview
+## System Architecture
+
+### Backend Services
 
 1. **Service Registry (Eureka)** - Port 8761
    - Service discovery and registration
    - Health monitoring
    - Load balancing support
+   - Dashboard: http://localhost:8761
 
 2. **Config Server** - Port 8888
    - Centralized configuration management
    - Git-based config repository
    - Dynamic configuration updates
+   - Supports multiple environments
 
 3. **API Gateway** - Port 8080
-   - Request routing
-   - Load balancing
+   - Request routing and load balancing
    - Global CORS configuration
-   - Authentication filter
-   - Rate limiting
+   - Authentication and authorization
+   - Rate limiting and circuit breaking
+   - Swagger UI: http://localhost:8080/swagger-ui.html
 
 4. **Auth Service** - Port 8081
-   - User authentication
+   - User authentication and authorization
    - JWT token management
-   - User registration
-   - Password encryption (BCrypt)
+   - Role-based access control (CELEBRITY/USER)
+   - Password encryption using BCrypt
+   - Secure token storage
 
 5. **User Service** - Port 8082
    - User profile management
-   - User preferences
-   - Account settings
+   - Celebrity profile management
+   - Account settings and preferences
+   - Profile verification system
 
 6. **Post Service** - Port 8083
    - Create and manage posts
-   - Media handling
-   - Post interactions
+   - Media handling (images/videos)
+   - Post interactions (likes/comments)
+   - Content sharing functionality
 
 7. **Messaging Service** - Port 8084
-   - Real-time messaging
-   - Chat functionality
-   - Notifications integration
+   - Real-time messaging system
+   - Private conversations
+   - Message status tracking
+   - Read receipts
 
 8. **News Feed Service** - Port 8085
    - Personalized feed generation
    - Content aggregation
    - Feed preferences
+   - Trending content algorithm
 
 9. **Moderation Service** - Port 8086
    - Content moderation
    - Report handling
    - Community guidelines enforcement
+   - Automated content filtering
 
 10. **Notification Service** - Port 8087
     - Push notifications
     - Email notifications
     - In-app notifications
+    - Notification preferences
 
 11. **Search Service** - Port 8088
     - Full-text search
     - Advanced filtering
     - Search analytics
+    - Celebrity discovery
 
 12. **Award Service** - Port 8089
     - Achievement management
     - Badge system
     - Rewards tracking
+    - Recognition programs
 
 13. **Rating & Review Service** - Port 8090
     - User ratings
     - Review management
     - Reputation system
+    - Feedback analysis
 
 14. **Analytics & Logging Service** - Port 8091
     - User analytics
     - System metrics
     - Audit logging
+    - Performance monitoring
+
+### Mobile Application (Flutter)
+
+The mobile application is built using Flutter and provides:
+
+1. **Authentication**
+   - User registration with role selection
+   - Secure login system
+   - Password recovery
+   - Session management
+
+2. **Celebrity Profiles**
+   - Comprehensive profile management
+   - Multiple information sections
+   - Media gallery
+   - Career highlights
+
+3. **Feed System**
+   - Celebrity content feed
+   - Post interactions
+   - Content sharing
+   - Media support
+
+4. **Notifications**
+   - Real-time notifications
+   - Multiple notification types
+   - Read status tracking
+   - Notification management
+
+5. **Messaging**
+   - Direct messaging
+   - Real-time chat
+   - Message status
+   - Media sharing
 
 ## Prerequisites
 
+### Backend Requirements
 - Java 17 or higher
 - PostgreSQL 15+
 - Gradle 7.x
 - Docker (optional)
-- Node.js 18+ (for frontend)
+
+### Mobile App Requirements
+- Flutter SDK 3.0+
+- Dart 3.0+
+- Android Studio / VS Code
+- iOS development tools (for iOS builds)
 
 ## Database Setup
 
-1. Install PostgreSQL if not already installed
-2. Create the database:
-```sql
-CREATE DATABASE celebratedb;
-```
-3. Run the database setup script:
+1. Install PostgreSQL 15 or higher
+
+2. Create and configure the database:
 ```bash
+# Run the database setup script
 ./setup_database.bat  # Windows
 ./setup_database.sh   # Linux/Mac
 ```
 
-## Service Startup Sequence
+The script will:
+- Create the celebratedb database
+- Set up all necessary tables
+- Create indexes for optimization
+- Configure permissions
+- Set up triggers for timestamps
 
-For proper functionality, start the services in the following order:
+### Database Schema
 
-1. **Service Registry (Eureka)**
+The system uses a single database (celebratedb) with the following key tables:
+
+1. **users**
+   - Basic user information
+   - Authentication details
+   - Role management
+
+2. **celebrity_profiles**
+   - Detailed celebrity information
+   - Career and personal details
+   - Verification status
+
+3. **posts**
+   - User-generated content
+   - Media attachments
+   - Interaction metrics
+
+4. **comments**
+   - Post interactions
+   - User engagement
+   - Nested discussions
+
+5. **likes**
+   - Content appreciation
+   - Engagement tracking
+   - Analytics support
+
+6. **followers**
+   - User relationships
+   - Following system
+   - Fan management
+
+7. **notifications**
+   - System notifications
+   - User alerts
+   - Event tracking
+
+8. **messages**
+   - Direct communication
+   - Chat history
+   - Message status
+
+## Service Startup
+
+### Using Scripts
 ```bash
-cd service-registry
-./gradlew bootRun
-```
-
-2. **Config Server**
-```bash
-cd config-server
-./gradlew bootRun
-```
-
-3. **API Gateway**
-```bash
-cd api-gateway
-./gradlew bootRun
-```
-
-4. **Auth Service**
-```bash
-cd auth-service
-./gradlew bootRun
-```
-
-5. **Core Services** (can be started in any order)
-```bash
-# Start each in a separate terminal
-cd user-service
-./gradlew bootRun
-
-cd post-service
-./gradlew bootRun
-
-cd messaging-service
-./gradlew bootRun
-```
-
-6. **Supporting Services** (can be started in any order)
-```bash
-# Start each in a separate terminal
-cd notification-service
-./gradlew bootRun
-
-cd search-service
-./gradlew bootRun
-
-cd award-service
-./gradlew bootRun
-
-cd rating-review-service
-./gradlew bootRun
-
-cd analytics-logging-service
-./gradlew bootRun
-
-cd news-feed-service
-./gradlew bootRun
-
-cd moderation-service
-./gradlew bootRun
-```
-
-## Quick Start (Using Scripts)
-
-Windows:
-```bash
+# Windows
 start-services.bat
-```
 
-Linux/Mac:
-```bash
+# Linux/Mac
 ./start-services.sh
 ```
 
-## API Documentation
+### Manual Startup Sequence
 
-- Swagger UI: http://localhost:8080/swagger-ui.html
-- API Documentation: http://localhost:8080/api-docs
+1. Start core infrastructure:
+   ```bash
+# 1. Service Registry
+cd service-registry && ./gradlew bootRun
 
-## Monitoring
+# 2. Config Server
+cd config-server && ./gradlew bootRun
 
+# 3. API Gateway
+cd api-gateway && ./gradlew bootRun
+   ```
+
+2. Start essential services:
+```bash
+# Auth Service
+cd auth-service && ./gradlew bootRun
+
+# User Service
+cd user-service && ./gradlew bootRun
+
+# Post Service
+cd post-service && ./gradlew bootRun
+```
+
+3. Start supporting services (any order):
+```bash
+cd notification-service && ./gradlew bootRun
+cd messaging-service && ./gradlew bootRun
+cd search-service && ./gradlew bootRun
+# ... start other services as needed
+```
+
+## Mobile App Setup
+
+1. Clone the repository
+2. Install dependencies:
+```bash
+cd celebrate
+flutter pub get
+```
+
+3. Run the app:
+```bash
+flutter run
+```
+
+## Configuration
+
+### API Gateway Routes
+All requests are routed through port 8080:
+- Authentication: /api/auth/**
+- User management: /api/users/**
+- Posts: /api/posts/**
+- Messages: /api/messages/**
+- Notifications: /api/notifications/**
+
+### Security
+- JWT-based authentication
+- Role-based access control
+- Secure password storage
+- API key management
+- Rate limiting
+
+### Monitoring
 - Eureka Dashboard: http://localhost:8761
 - Spring Boot Admin: http://localhost:8080/admin
-- Actuator Endpoints: Available on each service at /actuator
-
-## Testing
-
-Each service includes:
-- Unit tests
-- Integration tests
-- API tests (Postman collections in /postman directory)
+- Actuator endpoints on each service
+- Logging and analytics dashboard
 
 ## Docker Support
 
-Build all services:
-```bash
+Build and run with Docker:
+   ```bash
+# Build all services
 docker-compose build
-```
 
-Run the entire stack:
-```bash
+# Run the stack
 docker-compose up -d
 ```
 
 ## Kubernetes Support
 
-Deployment manifests are available in the `k8s` directory.
+Deploy to Kubernetes:
+```bash
+# Apply configurations
+kubectl apply -f k8s/
 
-## Contributing
+# Monitor deployments
+kubectl get pods -n celebrate
+```
 
-Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
+## Testing
 
-## License
+1. **Backend Testing**
+   - Unit tests for each service
+   - Integration tests
+   - API tests (Postman collections)
+   - Load testing scripts
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Configuration Notes
-
-1. **API Gateway Routes**
-   - All requests are routed through the API Gateway (port 8080)
-   - Auth service routes: /api/auth/**
-   - User service routes: /api/users/**
-   - Post service routes: /api/posts/**
-   - Messaging service routes: /api/messages/**
-
-2. **CORS Configuration**
-   - CORS is handled at the API Gateway level
-   - Allowed origins: localhost and 127.0.0.1
-   - Allowed methods: GET, POST, PUT, DELETE, OPTIONS, HEAD
-   - Credentials are allowed
-   - Max age: 3600 seconds
-
-3. **Database Configuration**
-   - URL: jdbc:postgresql://localhost:5432/celebratedb
-   - Username: postgres
-   - Password: postgres
-   - Each service manages its own schema
-
-4. **Service Discovery**
-   - All services register with Eureka (http://localhost:8761)
-   - Health checks are enabled
-   - Services use the hostname: localhost
+2. **Mobile App Testing**
+   - Widget tests
+   - Integration tests
+   - End-to-end tests
+   - Performance testing
 
 ## Troubleshooting
 
 1. **Service Registration Issues**
-   - Ensure Service Registry (Eureka) is running first
-   - Check if services are visible in Eureka dashboard (http://localhost:8761)
-   - Verify correct service names in application.yml files
+   - Verify Eureka server is running
+   - Check service configurations
+   - Validate network connectivity
 
-2. **API Gateway Issues**
-   - Check if services are registered in Eureka
-   - Verify route configurations in api-gateway/application.yml
-   - Check service health endpoints
-
-3. **Database Issues**
+2. **Database Connectivity**
    - Verify PostgreSQL is running
-   - Check database exists and is accessible
-   - Verify database credentials in application.yml files
+   - Check connection strings
+   - Validate credentials
 
-## Development Notes
+3. **Mobile App Issues**
+   - Clear cache: `flutter clean`
+   - Update dependencies: `flutter pub get`
+   - Rebuild: `flutter run --release`
 
-1. **Adding New Services**
-   - Add service configuration to API Gateway
-   - Configure Eureka client in the new service
-   - Add appropriate security configuration
-   - Update database schema if needed
+## Contributing
 
-2. **Security**
-   - JWT authentication is implemented
-   - Tokens are required for protected endpoints
-   - CORS is configured at the API Gateway level
+Please read CONTRIBUTING.md for contribution guidelines.
 
-## Logging
+## License
 
-- All services use Spring Boot's default logging
-- Log levels can be adjusted in application.yml
-- Gateway logs are set to DEBUG level for troubleshooting
+This project is licensed under the MIT License - see LICENSE for details.

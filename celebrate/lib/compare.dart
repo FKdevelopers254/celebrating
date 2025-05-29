@@ -16,11 +16,13 @@ class _CompareScreenState extends State<CompareScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: SafeArea(child: Column(
+      body: SafeArea(
+          child: Column(
         children: [
-          Text('Rate Celebrity',style: GoogleFonts.lato(fontSize: 30,fontWeight: FontWeight.bold),),
-
-
+          Text(
+            'Rate Celebrity',
+            style: GoogleFonts.lato(fontSize: 30, fontWeight: FontWeight.bold),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -29,29 +31,47 @@ class _CompareScreenState extends State<CompareScreen> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: CircleAvatar(
-                      backgroundImage: AssetImage('lib/images/feed.png', ),
-                       radius: 70,
-
+                      backgroundImage: AssetImage(
+                        'lib/images/feed.png',
+                      ),
+                      radius: 70,
                     ),
                   ),
-                  Text('James Smit',style: GoogleFonts.andika(fontSize: 24,fontWeight: FontWeight.bold),),
-
+                  Text(
+                    'James Smit',
+                    style: GoogleFonts.andika(
+                        fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
                   Row(
                     children: [
-                      Icon(Icons.star,color: Colors.orange,),
-                      Icon(Icons.star,color: Colors.orange,),
-                      Icon(Icons.star,color: Colors.grey,),
-                      Icon(Icons.star,color: Colors.grey,),
-                      Icon(Icons.star,color: Colors.grey,),
-
+                      Icon(
+                        Icons.star,
+                        color: Colors.orange,
+                      ),
+                      Icon(
+                        Icons.star,
+                        color: Colors.orange,
+                      ),
+                      Icon(
+                        Icons.star,
+                        color: Colors.grey,
+                      ),
+                      Icon(
+                        Icons.star,
+                        color: Colors.grey,
+                      ),
+                      Icon(
+                        Icons.star,
+                        color: Colors.grey,
+                      ),
                     ],
                   ),
-
-
-
                 ],
               ),
-              Text('vs',style: GoogleFonts.bebasNeue(fontSize: 30), ),
+              Text(
+                'vs',
+                style: GoogleFonts.bebasNeue(fontSize: 30),
+              ),
               Column(
                 children: [
                   Column(
@@ -59,37 +79,50 @@ class _CompareScreenState extends State<CompareScreen> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: CircleAvatar(
-                          backgroundImage: AssetImage('lib/images/wall.png', ),
-                           radius: 70,
-
+                          backgroundImage: AssetImage(
+                            'lib/images/wall.png',
+                          ),
+                          radius: 70,
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(right: 8.0),
-                        child: Text('Megan Brown',style: GoogleFonts.andika(fontSize: 24,fontWeight: FontWeight.bold),),
+                        child: Text(
+                          'Megan Brown',
+                          style: GoogleFonts.andika(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
                       ),
-
                       Row(
                         children: [
-                          Icon(Icons.star,color: Colors.orange,),
-                          Icon(Icons.star,color: Colors.orange,),
-                          Icon(Icons.star,color: Colors.orange,),
-                          Icon(Icons.star,color: Colors.orange,),
-                          Icon(Icons.star,color: Colors.orange,),
-
+                          Icon(
+                            Icons.star,
+                            color: Colors.orange,
+                          ),
+                          Icon(
+                            Icons.star,
+                            color: Colors.orange,
+                          ),
+                          Icon(
+                            Icons.star,
+                            color: Colors.orange,
+                          ),
+                          Icon(
+                            Icons.star,
+                            color: Colors.orange,
+                          ),
+                          Icon(
+                            Icons.star,
+                            color: Colors.orange,
+                          ),
                         ],
                       ),
                     ],
                   ),
-
                 ],
               ),
-
-
-
             ],
           ),
-
           Column(
             children: [
               Padding(
@@ -97,8 +130,14 @@ class _CompareScreenState extends State<CompareScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Status',style: GoogleFonts.andika(fontWeight: FontWeight.bold ),),
-                    Text('Rating',style: GoogleFonts.andika(fontWeight: FontWeight.bold ),),
+                    Text(
+                      'Status',
+                      style: GoogleFonts.andika(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Rating',
+                      style: GoogleFonts.andika(fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
               ),
@@ -111,30 +150,32 @@ class _CompareScreenState extends State<CompareScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.grey  ),
-          
-          
-          
+                        border: Border.all(color: Colors.grey),
                       ),
                       width: screenWidth * 0.4,
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(color: Colors.grey  ),
-          
+                          border: Border.all(color: Colors.grey),
                           color: Colors.orange,
-          
                         ),
-          
-          
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Text('Car',style: GoogleFonts.andika(fontSize: 15,fontWeight: FontWeight.bold,color: Colors.white),),
+                              child: Text(
+                                'Car',
+                                style: GoogleFonts.andika(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
+                              ),
                             ),
-                            Icon(Icons.star,color: Colors.orange,)
+                            Icon(
+                              Icons.star,
+                              color: Colors.orange,
+                            )
                           ],
                         ),
                       ),
@@ -145,30 +186,32 @@ class _CompareScreenState extends State<CompareScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.grey  ),
-          
-          
-          
+                        border: Border.all(color: Colors.grey),
                       ),
                       width: screenWidth * 0.8,
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(color: Colors.grey  ),
-          
+                          border: Border.all(color: Colors.grey),
                           color: Colors.orange,
-          
                         ),
-          
-          
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Text('House',style: GoogleFonts.andika(fontSize: 15,fontWeight: FontWeight.bold,color: Colors.white),),
+                              child: Text(
+                                'House',
+                                style: GoogleFonts.andika(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
+                              ),
                             ),
-                            Icon(Icons.star,color: Colors.orange,)
+                            Icon(
+                              Icons.star,
+                              color: Colors.orange,
+                            )
                           ],
                         ),
                       ),
@@ -179,63 +222,54 @@ class _CompareScreenState extends State<CompareScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.grey  ),
-          
-          
-          
+                        border: Border.all(color: Colors.grey),
                       ),
                       width: screenWidth * 0.7,
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(color: Colors.grey  ),
-
+                          border: Border.all(color: Colors.grey),
                           color: Colors.orange,
-
                         ),
-
-
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text('Fashion',style: GoogleFonts.andika(fontSize: 15,fontWeight: FontWeight.bold,color: Colors.white),),
+                          child: Text(
+                            'Fashion',
+                            style: GoogleFonts.andika(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
                         ),
                       ),
                     ),
                   ),
-
-
-
                   Padding(
-                    padding: const EdgeInsets.only(left: 10,right: 20,top: 10),
+                    padding:
+                        const EdgeInsets.only(left: 10, right: 20, top: 10),
                     child: Container(
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(color: Colors.orange  ),
+                          border: Border.all(color: Colors.orange),
                           color: Colors.orange),
-                      child:  Padding(
+                      child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-
-                            Text('Submit',style: GoogleFonts.andika(color: Colors.white ),),
+                            Text(
+                              'Submit',
+                              style: GoogleFonts.andika(color: Colors.white),
+                            ),
                           ],
                         ),
                       ),
                     ),
                   ),
-          
                 ],
               ),
-          
-          
-          
-          
             ],
           ),
-
-
-
         ],
       )),
     );

@@ -1,7 +1,11 @@
-import 'package:celebrate/custom_button.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import './models/celebrity.dart';
+import './services/celebrity_service.dart';
+import './services/auth_service.dart';
+import './widgets/celebrity_card.dart';
+import './widgets/search_bar.dart' as custom_search;
 
 class CelebrityFeed extends StatefulWidget {
   const CelebrityFeed({super.key});
@@ -11,240 +15,220 @@ class CelebrityFeed extends StatefulWidget {
 }
 
 class _CelebrityFeedState extends State<CelebrityFeed> {
+  late CelebrityService _celebrityService;
+  List<Celebrity> _celebrities = [];
+  bool _isLoading = true;
+  String _searchQuery = '';
+  final _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final authService = Provider.of<AuthService>(context, listen: false);
+    _celebrityService = CelebrityService(authToken: authService.token);
+    _loadCelebrities();
+  }
+
+  Future<void> _loadCelebrities() async {
+    setState(() => _isLoading = true);
+    try {
+      final celebrities = _searchQuery.isEmpty
+          ? await _celebrityService.getAllCelebrities()
+          : await _celebrityService.searchCelebrities(_searchQuery);
+      setState(() {
+        _celebrities = celebrities;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading celebrities: $e')),
+        );
+      }
+    }
+  }
+
+  void _onSearch(String query) {
+    setState(() => _searchQuery = query);
+    _loadCelebrities();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+      appBar: AppBar(
+        title: const Text('Celebrity Feed'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: custom_search.SearchBar(
+              controller: _searchController,
+              onSearch: _onSearch,
+              hintText: 'Search celebrities...',
+            ),
+          ),
+        ),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: _loadCelebrities,
+              child: _celebrities.isEmpty
+                  ? Center(
+                      child: Text(
+                        _searchQuery.isEmpty
+                            ? 'No celebrities found'
+                            : 'No results for "$_searchQuery"',
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _celebrities.length,
+                      itemBuilder: (context, index) {
+                        final celebrity = _celebrities[index];
+                        return CelebrityCard(celebrity: celebrity);
+                      },
+                    ),
+            ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+}
+
+class CelebrityCard extends StatelessWidget {
+  final Celebrity celebrity;
+
+  const CelebrityCard({
+    super.key,
+    required this.celebrity,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        onTap: () {
+          // TODO: Navigate to celebrity detail page
+        },
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 50,),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('EMMA SMIT',style: GoogleFonts.bebasNeue(fontSize: 20),),
-                      Row(
-                        children: [
-                          Text('Birth: ',style: GoogleFonts.andika(color: Colors.orange),),
-                          Text('July 1,1998 (34)'),
-
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text('Place: ',style: GoogleFonts.andika(color: Colors.orange),),
-                          Text('Los Angeles, California'),
-
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text('Nationality: ',style: GoogleFonts.andika(color: Colors.orange),),
-                          Text('Kenyan'),
-
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text('Networth: ',style: GoogleFonts.andika(color: Colors.orange),),
-                          Text('KES 10 Million'),
-
-                        ],
-                      ),
-                      SizedBox(height: 10,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Icon(Icons.facebook,color: Colors.blue,),
-                          Icon(Icons.g_mobiledata_outlined,color: Colors.red,size: 30,),
-                          Icon(Icons.social_distance,color: Colors.orange,),
-
-                        ],
-                      )
-                    ],
+                  // Profile Image
+                  CircleAvatar(
+                    radius: 40,
+                    child: Text(
+                      celebrity.stageName[0].toUpperCase(),
+                      style: const TextStyle(fontSize: 24),
+                    ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
+                  const SizedBox(width: 16),
+
+                  // Celebrity Info
+                  Expanded(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CircleAvatar(
-                          backgroundImage: AssetImage('lib/images/feed.png'),
-                          radius: 80,
-                        
+                        Text(
+                          celebrity.stageName,
+                          style: GoogleFonts.lato(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        Row(
-                          children: [
-                            Icon(Icons.star,color: Colors.orange,),
-                            Icon(Icons.star,color: Colors.orange,),
-                            Icon(Icons.star,color: Colors.orange,),
-                            Icon(Icons.star,color: Colors.grey,),
-                            Icon(Icons.star,color: Colors.grey,),
-                          ],
-                        )
+                        const SizedBox(height: 4),
+                        Text(
+                          celebrity.fullName,
+                          style: GoogleFonts.lato(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          celebrity.professions.join(', '),
+                          style: GoogleFonts.lato(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
                       ],
                     ),
                   ),
-
                 ],
               ),
-              SizedBox(height: 30,),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 16),
+
+              // Career Highlights
+              if (celebrity.majorAchievements.isNotEmpty) ...[
+                Text(
+                  'Career Highlights',
+                  style: GoogleFonts.lato(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  celebrity.majorAchievements.first,
+                  style: GoogleFonts.lato(fontSize: 14),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+
+              const SizedBox(height: 16),
+
+              // Stats Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text('Career Highlights',style: GoogleFonts.andika(fontSize: 17,fontWeight: FontWeight.bold),),
-
-                  Row(
-                    children: [
-                      Text('Profession: ',style: GoogleFonts.andika(color: Colors.orange),),
-                      Text('Actor'),
-
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text('Debut Work(2010): ',style: GoogleFonts.andika(color: Colors.orange),),
-                      Text('Los Angeles, California'),
-
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text('Major Achievements: ',style: GoogleFonts.andika(color: Colors.orange),),
-                      Text('M'),
-
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text('Notable Projects: ',style: GoogleFonts.andika(color: Colors.orange),),
-                      Text('Movie Title'),
-
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text('Philanthropy: ',style: GoogleFonts.andika(color: Colors.orange),),
-                      Text('Cause Supported'),
-
-                    ],
-                  ),
-
+                  _buildStat(
+                      'Projects', celebrity.notableProjects.length.toString()),
+                  _buildStat('Collaborations',
+                      celebrity.collaborations.length.toString()),
+                  _buildStat('Net Worth', celebrity.netWorth),
                 ],
               ),
-              SizedBox(height: 30,),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Public Persona',style: GoogleFonts.andika(fontSize: 17,fontWeight: FontWeight.bold),),
-
-                  Row(
-                    children: [
-                      Text('Follower Count: ',style: GoogleFonts.andika(color: Colors.orange),),
-                      Text('Actor'),
-
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text('Controversies or Scandals: ',style: GoogleFonts.andika(color: Colors.orange),),
-                      Text('Los Angeles, California'),
-
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text('Fashion style: ',style: GoogleFonts.andika(color: Colors.orange),),
-                      Text('M'),
-
-                    ],
-                  ),
-
-                ],
-              ),
-
-              SizedBox(height: 50,),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text('Fun Fact',style: GoogleFonts.andika(fontSize: 17,fontWeight: FontWeight.bold),),
-
-                    ],
-                  ),
-                  Text('. Likes Italian Cuisine',style: GoogleFonts.andika( ),),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20.0),
-                            border: Border.all(color: Colors.orange  ),
-                          color: Colors.orange),
-                          child:  Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Icon(Icons.facebook,size: 14,color: Colors.white,),
-                                SizedBox(width: 5,),
-                                Text('Follow',style: GoogleFonts.andika(color: Colors.white ),),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20.0),
-                            border: Border.all(color: Colors.orange  ),),
-                          child:  Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Icon(Icons.message,size: 14,color: Colors.orange,),
-                                SizedBox(width: 5,),
-                                Text('Message',style: GoogleFonts.andika( ),),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20.0),
-                            border: Border.all(color: Colors.orange  ),),
-                          child:  Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Icon(Icons.share,size: 14,color: Colors.orange,),
-                                SizedBox(width: 5,),
-                                Text('Share',style: GoogleFonts.andika( ),),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                      ],
-                    ),
-                  )
-
-                ],
-              ),
-
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildStat(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: GoogleFonts.lato(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          label,
+          style: GoogleFonts.lato(
+            fontSize: 12,
+            color: Colors.grey[600],
+          ),
+        ),
+      ],
     );
   }
 }

@@ -2,10 +2,45 @@ import 'dart:convert';
 import 'dart:html' if (dart.library.html) 'dart:html' show window;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, ChangeNotifier;
 import 'config/api_config.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class AuthService {
+class AuthService with ChangeNotifier {
+  final storage = const FlutterSecureStorage();
+  String? _token;
+  String? _role;
+
+  String? get token => _token;
+  String? get role => _role;
+
+  // Initialize the service
+  Future<void> init() async {
+    _token = await storage.read(key: 'auth_token');
+    _role = await storage.read(key: 'user_role');
+    notifyListeners();
+  }
+
+  // Set token and role
+  Future<void> setToken(String token) async {
+    await storage.write(key: 'auth_token', value: token);
+    _token = token;
+    notifyListeners();
+  }
+
+  Future<void> setRole(String role) async {
+    await storage.write(key: 'user_role', value: role);
+    _role = role;
+    notifyListeners();
+  }
+
+  // Clear token and role (logout)
+  static Future<void> logout() async {
+    final storage = FlutterSecureStorage();
+    await storage.delete(key: 'auth_token');
+    await storage.delete(key: 'user_role');
+  }
+
   static String get baseUrl => ApiConfig.baseUrl;
   static String get origin =>
       kIsWeb ? window.location.origin : 'app://celebrate';
@@ -316,10 +351,6 @@ class AuthService {
     return token != null;
   }
 
-  static Future<void> logout() async {
-    await clearToken();
-  }
-
   // Helper method to get auth headers
   static Future<Map<String, String>> getAuthHeaders() async {
     final token = await getToken();
@@ -329,5 +360,45 @@ class AuthService {
       'Authorization': token != null ? 'Bearer $token' : '',
       'Origin': origin,
     };
+  }
+
+  static Future<Map<String, dynamic>> getCurrentUser() async {
+    try {
+      final token = await getToken();
+      if (token == null) {
+        return {'success': false, 'message': 'No authentication token found'};
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/auth/me'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+          'Origin': origin,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': true,
+          'data': data,
+          'message': 'User data retrieved successfully'
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'Failed to get user data',
+          'details': response.body
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error getting user data',
+        'details': e.toString()
+      };
+    }
   }
 }

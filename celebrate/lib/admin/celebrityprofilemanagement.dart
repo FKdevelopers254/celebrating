@@ -2,7 +2,306 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../models/celebrity.dart';
+import '../services/celebrity_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import '../widgets/adaptive_bottom_nav.dart';
+import '../services/user_service.dart';
+import '../models/user.dart';
 
+class CelebrityProfileManagement extends StatefulWidget {
+  const CelebrityProfileManagement({super.key});
+
+  @override
+  State<CelebrityProfileManagement> createState() =>
+      _CelebrityProfileManagementState();
+}
+
+class _CelebrityProfileManagementState extends State<CelebrityProfileManagement>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  final UserService _userService = UserService();
+  User? _user;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+    _loadProfile();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final user = await _userService.getCurrentUser();
+      setState(() {
+        _user = user;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading profile: $e')),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  _buildTabBar(),
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildBasicInfoTab(),
+                        _buildCareerTab(),
+                        _buildPersonalLifeTab(),
+                        _buildSettingsTab(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+      bottomNavigationBar: const AdaptiveBottomNav(currentIndex: 1),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 40,
+            backgroundImage: _user?.profileImage != null
+                ? NetworkImage(_user!.profileImage!)
+                : const AssetImage('lib/images/feed.png') as ImageProvider,
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _user?.fullName ?? 'Loading...',
+                  style: GoogleFonts.andika(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (_user?.location != null)
+                  Text(
+                    _user!.location!,
+                    style: GoogleFonts.andika(fontSize: 16),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return TabBar(
+      controller: _tabController,
+      labelColor: Colors.orange,
+      unselectedLabelColor: Colors.grey,
+      indicatorColor: Colors.orange,
+      tabs: const [
+        Tab(text: 'Basic Info'),
+        Tab(text: 'Career'),
+        Tab(text: 'Personal'),
+        Tab(text: 'Settings'),
+      ],
+    );
+  }
+
+  Widget _buildBasicInfoTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle('Basic Information'),
+          _buildInfoCard([
+            _buildInfoRow('Full Name', _user?.fullName ?? 'Not set'),
+            _buildInfoRow('Location', _user?.location ?? 'Not set'),
+            _buildInfoRow('Bio', _user?.bio ?? 'Not set'),
+          ]),
+          const SizedBox(height: 16),
+          _buildSectionTitle('Contact Information'),
+          _buildInfoCard([
+            _buildInfoRow('Email', 'contact@example.com'),
+            _buildInfoRow('Phone', '+1 234 567 890'),
+            _buildInfoRow('Website', 'www.example.com'),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCareerTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle('Career Highlights'),
+          _buildInfoCard([
+            _buildInfoRow('Profession', 'Actor'),
+            _buildInfoRow('Years Active', '2010 - Present'),
+            _buildInfoRow('Awards', '3 Academy Awards'),
+          ]),
+          const SizedBox(height: 16),
+          _buildSectionTitle('Notable Works'),
+          _buildInfoCard([
+            _buildInfoRow('Movies', '25+'),
+            _buildInfoRow('TV Shows', '10+'),
+            _buildInfoRow('Theater', '5 Productions'),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPersonalLifeTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle('Personal Details'),
+          _buildInfoCard([
+            _buildInfoRow('Date of Birth', 'January 1, 1980'),
+            _buildInfoRow('Place of Birth', 'Los Angeles, CA'),
+            _buildInfoRow('Nationality', 'American'),
+          ]),
+          const SizedBox(height: 16),
+          _buildSectionTitle('Interests'),
+          _buildInfoCard([
+            _buildInfoRow('Hobbies', 'Photography, Traveling'),
+            _buildInfoRow('Causes', 'Environmental Conservation'),
+            _buildInfoRow('Sports', 'Tennis, Golf'),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle('Account Settings'),
+          _buildInfoCard([
+            _buildSettingsRow('Profile Visibility', true),
+            _buildSettingsRow('Email Notifications', true),
+            _buildSettingsRow('Push Notifications', false),
+          ]),
+          const SizedBox(height: 16),
+          _buildSectionTitle('Privacy Settings'),
+          _buildInfoCard([
+            _buildSettingsRow('Public Profile', true),
+            _buildSettingsRow('Show Location', false),
+            _buildSettingsRow('Show Contact Info', true),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Text(
+        title,
+        style: GoogleFonts.andika(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoCard(List<Widget> children) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: children,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.andika(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.andika(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsRow(String label, bool value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.andika(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: (newValue) {
+              // TODO: Implement settings update
+            },
+            activeColor: Colors.orange,
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class CelebrityProfile extends StatefulWidget {
   const CelebrityProfile({super.key});
@@ -11,57 +310,69 @@ class CelebrityProfile extends StatefulWidget {
   State<CelebrityProfile> createState() => _CelebrityProfileState();
 }
 
-class _CelebrityProfileState extends State<CelebrityProfile> with SingleTickerProviderStateMixin {
-
-
+class _CelebrityProfileState extends State<CelebrityProfile>
+    with SingleTickerProviderStateMixin {
   // final user = FirebaseAuth.instance.currentUser!;
   late TabController tabController;
   @override
-  void  initState(){
+  void initState() {
     super.initState();
     tabController = TabController(length: 5, vsync: this);
   }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     return SafeArea(
       child: Scaffold(
-
         body: ListView(
           physics: const BouncingScrollPhysics(
-            parent: AlwaysScrollableScrollPhysics(
-
-            ),
-
+            parent: AlwaysScrollableScrollPhysics(),
           ),
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child:   Row(
+              child: Row(
                 children: [
                   CircleAvatar(
                     backgroundImage: AssetImage('lib/images/img.png'),
-
                   ),
-                  SizedBox(width: 10,),
+                  SizedBox(
+                    width: 10,
+                  ),
                   Row(
                     children: [
-                      Text('CELEB',style: GoogleFonts.lato(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.black),),
-                      Text('R',style: GoogleFonts.lato(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.orange),),
+                      Text(
+                        'CELEB',
+                        style: GoogleFonts.lato(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
+                      ),
+                      Text(
+                        'R',
+                        style: GoogleFonts.lato(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange),
+                      ),
                       CircleAvatar(
                         backgroundImage: AssetImage('lib/images/img.png'),
                         radius: 9,
-
                       ),
-                      Text('TING',style: GoogleFonts.lato(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.orange),),
+                      Text(
+                        'TING',
+                        style: GoogleFonts.lato(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
-
-
             TabBar(
               controller: tabController,
               indicatorColor: Theme.of(context).primaryColor,
@@ -75,64 +386,61 @@ class _CelebrityProfileState extends State<CelebrityProfile> with SingleTickerPr
               tabs: const [
                 Tab(
                   child: Text(
-                    'Basic Information',style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 15.0,
-                  ),
-                  ),
-                ),
-                Tab(
-                  child: Text(
-                    'Career Highlights',style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 15.0,
-
-                  ),
+                    'Basic Information',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 15.0,
+                    ),
                   ),
                 ),
                 Tab(
                   child: Text(
-                    'Personal Life',style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 15.0,
-
-                  ),
+                    'Career Highlights',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 15.0,
+                    ),
                   ),
                 ),
                 Tab(
                   child: Text(
-                    'Public Persona',style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 15.0,
-
-                  ),
+                    'Personal Life',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 15.0,
+                    ),
                   ),
                 ),
-
                 Tab(
                   child: Text(
-                    'Fun or Niche',style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 15.0,
-
-                  ),
+                    'Public Persona',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 15.0,
+                    ),
                   ),
                 ),
-
-
+                Tab(
+                  child: Text(
+                    'Fun or Niche',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 15.0,
+                    ),
+                  ),
+                ),
               ],
-
-
-
             ),
-            const SizedBox(height: 10.0,),
+            const SizedBox(
+              height: 10.0,
+            ),
             Container(
               color: Colors.white,
               //  color: Theme.of(context).colorScheme.primary,
               height: MediaQuery.of(context).size.height,
               child: TabBarView(
                 controller: tabController,
-                children:   <Widget>[
+                children: <Widget>[
                   CelebrityBasicInfo(),
                   CelebrityCareerHighlights(),
                   CelebrityPersonalLife(),
@@ -141,34 +449,15 @@ class _CelebrityProfileState extends State<CelebrityProfile> with SingleTickerPr
 
                   //   DevtTab(),
                   //   EventsTabLocation(),
-
-
-
-
-
-
-
-
-
-
-
-
                 ],
               ),
             ),
-
-
           ],
         ),
       ),
     );
   }
 }
-
-
-
-
-
 
 class CelebrityBasicInfo extends StatefulWidget {
   @override
@@ -177,6 +466,9 @@ class CelebrityBasicInfo extends StatefulWidget {
 
 class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
   final _formKey = GlobalKey<FormState>();
+  final _celebrityService = CelebrityService();
+  File? _profileImage;
+  bool _isLoading = false;
 
   // Controllers for each form field
   final TextEditingController stageNameController = TextEditingController();
@@ -186,25 +478,34 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
   final TextEditingController ethnicityController = TextEditingController();
   final TextEditingController professionController = TextEditingController();
   final TextEditingController debutWorkController = TextEditingController();
-  final TextEditingController majorAchievementsController = TextEditingController();
-  final TextEditingController notableProjectsController = TextEditingController();
-  final TextEditingController collaborationsController = TextEditingController();
+  final TextEditingController majorAchievementsController =
+      TextEditingController();
+  final TextEditingController notableProjectsController =
+      TextEditingController();
+  final TextEditingController collaborationsController =
+      TextEditingController();
   final TextEditingController netWorthController = TextEditingController();
-  final TextEditingController agenciesOrLabelsController = TextEditingController();
+  final TextEditingController agenciesOrLabelsController =
+      TextEditingController();
   final TextEditingController relationshipsController = TextEditingController();
   final TextEditingController familyMembersController = TextEditingController();
-  final TextEditingController educationBackgroundController = TextEditingController();
-  final TextEditingController hobbiesInterestsController = TextEditingController();
-  final TextEditingController lifestyleDetailsController = TextEditingController();
+  final TextEditingController educationBackgroundController =
+      TextEditingController();
+  final TextEditingController hobbiesInterestsController =
+      TextEditingController();
+  final TextEditingController lifestyleDetailsController =
+      TextEditingController();
   final TextEditingController philanthropyController = TextEditingController();
-  final TextEditingController socialMediaPresenceController = TextEditingController();
+  final TextEditingController socialMediaPresenceController =
+      TextEditingController();
   final TextEditingController publicImageController = TextEditingController();
   final TextEditingController controversiesController = TextEditingController();
   final TextEditingController fashionStyleController = TextEditingController();
   final TextEditingController quotesController = TextEditingController();
   final TextEditingController tattoosController = TextEditingController();
   final TextEditingController petsController = TextEditingController();
-  final TextEditingController favoriteThingsController = TextEditingController();
+  final TextEditingController favoriteThingsController =
+      TextEditingController();
   final TextEditingController hiddenTalentsController = TextEditingController();
   final TextEditingController fanTheoriesController = TextEditingController();
 
@@ -245,16 +546,107 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
     // Add more nationalities as needed
   ];
 
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() {
+        _profileImage = File(image.path);
+      });
+    }
+  }
+
+  Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        final celebrity = Celebrity(
+            id: 0, // Temporary ID that will be replaced by backend
+            stageName: stageNameController.text,
+            fullName: fullNameController.text,
+            dateOfBirth: dateOfBirthController.text,
+            placeOfBirth: placeOfBirthController.text,
+            nationality: selectedNationality ?? 'Not specified',
+            astrologicalSign: selectedAstrologicalSign,
+            ethnicity: ethnicityController.text,
+            netWorth: netWorthController.text,
+            professions: [professionController.text],
+            debutWorks: [debutWorkController.text],
+            majorAchievements: [majorAchievementsController.text],
+            notableProjects: [notableProjectsController.text],
+            collaborations: [collaborationsController.text],
+            agenciesOrLabels: [agenciesOrLabelsController.text],
+            stats: CelebrityStats(
+                postsCount: 0, followersCount: 0, followingCount: 0));
+
+        final createdCelebrity =
+            await _celebrityService.createCelebrity(celebrity);
+
+        if (_profileImage != null) {
+          await _celebrityService.uploadProfileImage(
+            createdCelebrity.id!,
+            _profileImage!.path,
+          );
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Celebrity profile created successfully!')),
+        );
+
+        // Clear form
+        _formKey.currentState!.reset();
+        setState(() {
+          _profileImage = null;
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error creating celebrity profile: $e')),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: <Widget>[
+              // Profile Image
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.grey[200],
+                    image: _profileImage != null
+                        ? DecorationImage(
+                            image: FileImage(_profileImage!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: _profileImage == null
+                      ? Icon(Icons.camera_alt,
+                          size: 40, color: Colors.grey[400])
+                      : null,
+                ),
+              ),
+              SizedBox(height: 16.0),
+
               // Basic Information
               TextFormField(
                 controller: stageNameController,
@@ -291,7 +683,8 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
               SizedBox(height: 16.0), // Additional spacing
               TextFormField(
                 controller: placeOfBirthController,
-                decoration: _buildInputDecoration('Place of Birth / Celebritytown'),
+                decoration:
+                    _buildInputDecoration('Place of Birth / Celebritytown'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter place of birth';
@@ -307,7 +700,8 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
                     selectedNationality = newValue;
                   });
                 },
-                items: nationalities.map<DropdownMenuItem<String>>((String value) {
+                items:
+                    nationalities.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
@@ -329,7 +723,8 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
                     selectedAstrologicalSign = newValue;
                   });
                 },
-                items: astrologicalSigns.map<DropdownMenuItem<String>>((String value) {
+                items: astrologicalSigns
+                    .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
@@ -338,7 +733,7 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
                 decoration: _buildInputDecoration('Astrological Sign'),
               ),
               SizedBox(height: 16.0), // Additional spacing
-               // Additional spacing
+              // Additional spacing
               // Career Highlights
 
               // Personal Life
@@ -353,21 +748,37 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
                 child: Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
-                      border: Border.all(color: Colors.white  ),
-                      color: Colors.orange
-
-
-
-                  ),
+                      border: Border.all(color: Colors.white),
+                      color: Colors.orange),
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text('Update',style: GoogleFonts.lato(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.white),),
+                      child: Text(
+                        'Update',
+                        style: GoogleFonts.lato(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
                     ),
                   ),
                 ),
               ),
 
+              SizedBox(height: 24.0),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _submitForm,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                ),
+                child: _isLoading
+                    ? CircularProgressIndicator(color: Colors.white)
+                    : Text(
+                        'Save Profile',
+                        style: TextStyle(fontSize: 18),
+                      ),
+              ),
             ],
           ),
         ),
@@ -406,15 +817,12 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
   }
 }
 
-
-
-
-
 class CelebrityCareerHighlights extends StatefulWidget {
   const CelebrityCareerHighlights({super.key});
 
   @override
-  State<CelebrityCareerHighlights> createState() => _CelebrityCareerHighlightsState();
+  State<CelebrityCareerHighlights> createState() =>
+      _CelebrityCareerHighlightsState();
 }
 
 class _CelebrityCareerHighlightsState extends State<CelebrityCareerHighlights> {
@@ -423,10 +831,18 @@ class _CelebrityCareerHighlightsState extends State<CelebrityCareerHighlights> {
   // Lists to store multiple values for each field
   List<TextEditingController> professionControllers = [TextEditingController()];
   List<TextEditingController> debutWorkControllers = [TextEditingController()];
-  List<TextEditingController> majorAchievementsControllers = [TextEditingController()];
-  List<TextEditingController> notableProjectsControllers = [TextEditingController()];
-  List<TextEditingController> collaborationsControllers = [TextEditingController()];
-  List<TextEditingController> agenciesOrLabelsControllers = [TextEditingController()];
+  List<TextEditingController> majorAchievementsControllers = [
+    TextEditingController()
+  ];
+  List<TextEditingController> notableProjectsControllers = [
+    TextEditingController()
+  ];
+  List<TextEditingController> collaborationsControllers = [
+    TextEditingController()
+  ];
+  List<TextEditingController> agenciesOrLabelsControllers = [
+    TextEditingController()
+  ];
 
   // Function to add new field
   void addField(List<TextEditingController> controllers) {
@@ -475,7 +891,6 @@ class _CelebrityCareerHighlightsState extends State<CelebrityCareerHighlights> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -507,7 +922,8 @@ class _CelebrityCareerHighlightsState extends State<CelebrityCareerHighlights> {
                           if (index > 0)
                             IconButton(
                               icon: Icon(Icons.remove),
-                              onPressed: () => removeField(professionControllers, index),
+                              onPressed: () =>
+                                  removeField(professionControllers, index),
                             ),
                         ],
                       ),
@@ -521,7 +937,8 @@ class _CelebrityCareerHighlightsState extends State<CelebrityCareerHighlights> {
                     children: [
                       TextFormField(
                         controller: debutWorkControllers[index],
-                        decoration: customInputDecoration('Debut Work / Breakthrough Role'),
+                        decoration: customInputDecoration(
+                            'Debut Work / Breakthrough Role'),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter debut work';
@@ -539,7 +956,8 @@ class _CelebrityCareerHighlightsState extends State<CelebrityCareerHighlights> {
                           if (index > 0)
                             IconButton(
                               icon: Icon(Icons.remove),
-                              onPressed: () => removeField(debutWorkControllers, index),
+                              onPressed: () =>
+                                  removeField(debutWorkControllers, index),
                             ),
                         ],
                       ),
@@ -566,12 +984,14 @@ class _CelebrityCareerHighlightsState extends State<CelebrityCareerHighlights> {
                         children: [
                           IconButton(
                             icon: Icon(Icons.add),
-                            onPressed: () => addField(majorAchievementsControllers),
+                            onPressed: () =>
+                                addField(majorAchievementsControllers),
                           ),
                           if (index > 0)
                             IconButton(
                               icon: Icon(Icons.remove),
-                              onPressed: () => removeField(majorAchievementsControllers, index),
+                              onPressed: () => removeField(
+                                  majorAchievementsControllers, index),
                             ),
                         ],
                       ),
@@ -598,12 +1018,14 @@ class _CelebrityCareerHighlightsState extends State<CelebrityCareerHighlights> {
                         children: [
                           IconButton(
                             icon: Icon(Icons.add),
-                            onPressed: () => addField(notableProjectsControllers),
+                            onPressed: () =>
+                                addField(notableProjectsControllers),
                           ),
                           if (index > 0)
                             IconButton(
                               icon: Icon(Icons.remove),
-                              onPressed: () => removeField(notableProjectsControllers, index),
+                              onPressed: () => removeField(
+                                  notableProjectsControllers, index),
                             ),
                         ],
                       ),
@@ -617,7 +1039,8 @@ class _CelebrityCareerHighlightsState extends State<CelebrityCareerHighlights> {
                     children: [
                       TextFormField(
                         controller: collaborationsControllers[index],
-                        decoration: customInputDecoration('Collaborations with Other Celebrities'),
+                        decoration: customInputDecoration(
+                            'Collaborations with Other Celebrities'),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter collaborations';
@@ -630,12 +1053,14 @@ class _CelebrityCareerHighlightsState extends State<CelebrityCareerHighlights> {
                         children: [
                           IconButton(
                             icon: Icon(Icons.add),
-                            onPressed: () => addField(collaborationsControllers),
+                            onPressed: () =>
+                                addField(collaborationsControllers),
                           ),
                           if (index > 0)
                             IconButton(
                               icon: Icon(Icons.remove),
-                              onPressed: () => removeField(collaborationsControllers, index),
+                              onPressed: () =>
+                                  removeField(collaborationsControllers, index),
                             ),
                         ],
                       ),
@@ -662,12 +1087,14 @@ class _CelebrityCareerHighlightsState extends State<CelebrityCareerHighlights> {
                         children: [
                           IconButton(
                             icon: Icon(Icons.add),
-                            onPressed: () => addField(agenciesOrLabelsControllers),
+                            onPressed: () =>
+                                addField(agenciesOrLabelsControllers),
                           ),
                           if (index > 0)
                             IconButton(
                               icon: Icon(Icons.remove),
-                              onPressed: () => removeField(agenciesOrLabelsControllers, index),
+                              onPressed: () => removeField(
+                                  agenciesOrLabelsControllers, index),
                             ),
                         ],
                       ),
@@ -681,16 +1108,18 @@ class _CelebrityCareerHighlightsState extends State<CelebrityCareerHighlights> {
                   child: Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(color: Colors.white  ),
-                        color: Colors.orange
-
-
-
-                    ),
+                        border: Border.all(color: Colors.white),
+                        color: Colors.orange),
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text('Update',style: GoogleFonts.lato(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.white),),
+                        child: Text(
+                          'Update',
+                          style: GoogleFonts.lato(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
+                        ),
                       ),
                     ),
                   ),
@@ -703,8 +1132,6 @@ class _CelebrityCareerHighlightsState extends State<CelebrityCareerHighlights> {
     );
   }
 }
-
-
 
 class CelebrityPersonalLife extends StatefulWidget {
   const CelebrityPersonalLife({super.key});
@@ -719,15 +1146,17 @@ class _CelebrityPersonalLifeState extends State<CelebrityPersonalLife> {
   // Controllers for each form field
   final TextEditingController relationshipsController = TextEditingController();
   final TextEditingController familyMembersController = TextEditingController();
-  final TextEditingController educationBackgroundController = TextEditingController();
-  final TextEditingController hobbiesInterestsController = TextEditingController();
-  final TextEditingController lifestyleDetailsController = TextEditingController();
+  final TextEditingController educationBackgroundController =
+      TextEditingController();
+  final TextEditingController hobbiesInterestsController =
+      TextEditingController();
+  final TextEditingController lifestyleDetailsController =
+      TextEditingController();
   final TextEditingController philanthropyController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Form(
@@ -737,7 +1166,8 @@ class _CelebrityPersonalLifeState extends State<CelebrityPersonalLife> {
               // Personal Life
               TextFormField(
                 controller: relationshipsController,
-                decoration: _buildInputDecoration('Relationships / Dating History'),
+                decoration:
+                    _buildInputDecoration('Relationships / Dating History'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter relationships';
@@ -792,7 +1222,8 @@ class _CelebrityPersonalLifeState extends State<CelebrityPersonalLife> {
               SizedBox(height: 16.0), // Additional spacing
               TextFormField(
                 controller: philanthropyController,
-                decoration: _buildInputDecoration('Philanthropy / Causes Supported'),
+                decoration:
+                    _buildInputDecoration('Philanthropy / Causes Supported'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter philanthropy';
@@ -806,16 +1237,18 @@ class _CelebrityPersonalLifeState extends State<CelebrityPersonalLife> {
                 child: Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
-                      border: Border.all(color: Colors.white  ),
-                      color: Colors.orange
-
-
-
-                  ),
+                      border: Border.all(color: Colors.white),
+                      color: Colors.orange),
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text('Update',style: GoogleFonts.lato(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.white),),
+                      child: Text(
+                        'Update',
+                        style: GoogleFonts.lato(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
                     ),
                   ),
                 ),
@@ -858,10 +1291,6 @@ class _CelebrityPersonalLifeState extends State<CelebrityPersonalLife> {
   }
 }
 
-
-
-
-
 class CelebrityPublicPersona extends StatefulWidget {
   const CelebrityPublicPersona({super.key});
 
@@ -873,7 +1302,8 @@ class _CelebrityPublicPersonaState extends State<CelebrityPublicPersona> {
   final _formKey = GlobalKey<FormState>();
 
   // Controllers for each form field
-  final TextEditingController socialMediaPresenceController = TextEditingController();
+  final TextEditingController socialMediaPresenceController =
+      TextEditingController();
   final TextEditingController publicImageController = TextEditingController();
   final TextEditingController controversiesController = TextEditingController();
   final TextEditingController fashionStyleController = TextEditingController();
@@ -882,7 +1312,6 @@ class _CelebrityPublicPersonaState extends State<CelebrityPublicPersona> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Form(
@@ -925,7 +1354,8 @@ class _CelebrityPublicPersonaState extends State<CelebrityPublicPersona> {
               SizedBox(height: 16.0), // Additional spacing
               TextFormField(
                 controller: fashionStyleController,
-                decoration: _buildInputDecoration('Fashion Style / Red Carpet Moments'),
+                decoration:
+                    _buildInputDecoration('Fashion Style / Red Carpet Moments'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter fashion style';
@@ -936,7 +1366,8 @@ class _CelebrityPublicPersonaState extends State<CelebrityPublicPersona> {
               SizedBox(height: 16.0), // Additional spacing
               TextFormField(
                 controller: quotesController,
-                decoration: _buildInputDecoration('Quotes or Public Statements'),
+                decoration:
+                    _buildInputDecoration('Quotes or Public Statements'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter quotes';
@@ -950,16 +1381,18 @@ class _CelebrityPublicPersonaState extends State<CelebrityPublicPersona> {
                 child: Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
-                      border: Border.all(color: Colors.white  ),
-                      color: Colors.orange
-
-
-
-                  ),
+                      border: Border.all(color: Colors.white),
+                      color: Colors.orange),
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text('Update',style: GoogleFonts.lato(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.white),),
+                      child: Text(
+                        'Update',
+                        style: GoogleFonts.lato(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
                     ),
                   ),
                 ),
@@ -1002,12 +1435,6 @@ class _CelebrityPublicPersonaState extends State<CelebrityPublicPersona> {
   }
 }
 
-
-
-
-
-
-
 class CelebrityFun extends StatefulWidget {
   const CelebrityFun({super.key});
 
@@ -1021,9 +1448,15 @@ class _CelebrityFunState extends State<CelebrityFun> {
   // Lists to store multiple values for each field
   List<TextEditingController> tattoosControllers = [TextEditingController()];
   List<TextEditingController> petsControllers = [TextEditingController()];
-  List<TextEditingController> favoriteThingsControllers = [TextEditingController()];
-  List<TextEditingController> hiddenTalentsControllers = [TextEditingController()];
-  List<TextEditingController> fanTheoriesControllers = [TextEditingController()];
+  List<TextEditingController> favoriteThingsControllers = [
+    TextEditingController()
+  ];
+  List<TextEditingController> hiddenTalentsControllers = [
+    TextEditingController()
+  ];
+  List<TextEditingController> fanTheoriesControllers = [
+    TextEditingController()
+  ];
 
   // Function to add new field
   void addField(List<TextEditingController> controllers) {
@@ -1073,7 +1506,6 @@ class _CelebrityFunState extends State<CelebrityFun> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Form(
@@ -1086,7 +1518,8 @@ class _CelebrityFunState extends State<CelebrityFun> {
                   children: [
                     TextFormField(
                       controller: tattoosControllers[index],
-                      decoration: _buildInputDecoration('Tattoos or Unique Physical Traits'),
+                      decoration: _buildInputDecoration(
+                          'Tattoos or Unique Physical Traits'),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter tattoos';
@@ -1104,7 +1537,8 @@ class _CelebrityFunState extends State<CelebrityFun> {
                         if (index > 0)
                           IconButton(
                             icon: Icon(Icons.remove),
-                            onPressed: () => removeField(tattoosControllers, index),
+                            onPressed: () =>
+                                removeField(tattoosControllers, index),
                           ),
                       ],
                     ),
@@ -1138,7 +1572,8 @@ class _CelebrityFunState extends State<CelebrityFun> {
                         if (index > 0)
                           IconButton(
                             icon: Icon(Icons.remove),
-                            onPressed: () => removeField(petsControllers, index),
+                            onPressed: () =>
+                                removeField(petsControllers, index),
                           ),
                       ],
                     ),
@@ -1172,7 +1607,8 @@ class _CelebrityFunState extends State<CelebrityFun> {
                         if (index > 0)
                           IconButton(
                             icon: Icon(Icons.remove),
-                            onPressed: () => removeField(favoriteThingsControllers, index),
+                            onPressed: () =>
+                                removeField(favoriteThingsControllers, index),
                           ),
                       ],
                     ),
@@ -1206,7 +1642,8 @@ class _CelebrityFunState extends State<CelebrityFun> {
                         if (index > 0)
                           IconButton(
                             icon: Icon(Icons.remove),
-                            onPressed: () => removeField(hiddenTalentsControllers, index),
+                            onPressed: () =>
+                                removeField(hiddenTalentsControllers, index),
                           ),
                       ],
                     ),
@@ -1222,7 +1659,8 @@ class _CelebrityFunState extends State<CelebrityFun> {
                   children: [
                     TextFormField(
                       controller: fanTheoriesControllers[index],
-                      decoration: _buildInputDecoration('Fan Theories or Fan Interactions'),
+                      decoration: _buildInputDecoration(
+                          'Fan Theories or Fan Interactions'),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter fan theories';
@@ -1240,7 +1678,8 @@ class _CelebrityFunState extends State<CelebrityFun> {
                         if (index > 0)
                           IconButton(
                             icon: Icon(Icons.remove),
-                            onPressed: () => removeField(fanTheoriesControllers, index),
+                            onPressed: () =>
+                                removeField(fanTheoriesControllers, index),
                           ),
                       ],
                     ),

@@ -2,16 +2,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/feed_post.dart';
 import '../utils/constants.dart';
-import 'auth_service.dart';
+import 'package:celebrate/AuthService.dart';
 
 class FeedService {
   static const String baseUrl = ApiConstants.baseUrl;
-  final AuthService _authService = AuthService();
 
   // Fetch feed posts by category
   Future<List<FeedPost>> getFeedPosts(String category) async {
     try {
-      final token = await _authService.storage.read(key: 'auth_token');
+      final token = await AuthService.getToken();
 
       final response = await http.get(
         Uri.parse('$baseUrl/api/feed?category=$category'),
@@ -35,7 +34,7 @@ class FeedService {
   // Like a post
   Future<void> likePost(int postId) async {
     try {
-      final token = await _authService.storage.read(key: 'auth_token');
+      final token = await AuthService.getToken();
 
       final response = await http.post(
         Uri.parse('$baseUrl/api/feed/$postId/like'),
@@ -56,7 +55,7 @@ class FeedService {
   // Add comment to a post
   Future<void> addComment(int postId, String comment) async {
     try {
-      final token = await _authService.storage.read(key: 'auth_token');
+      final token = await AuthService.getToken();
 
       final response = await http.post(
         Uri.parse('$baseUrl/api/feed/$postId/comment'),

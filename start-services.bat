@@ -1,71 +1,55 @@
 @echo off
-set BASE_DIR=C:\Users\User\Documents\springprojects\celebrating-microservices-main
+echo Starting Microservices...
 
-echo Starting all microservices in the correct order...
+echo Starting Service Registry (Eureka)...
+start "Service Registry" cmd /c "cd service-registry; .\gradlew bootRun"
+timeout /t 30
+
+
 
 echo Starting Config Server...
 cd %BASE_DIR%\config-server
-start "Config Server" cmd /k "gradlew.bat bootRun"
-
-echo Waiting for Config Server to start...
-timeout /t 15 /nobreak
-
-echo Starting Service Registry (Eureka)...
-cd %BASE_DIR%\service-registry
-start "Service Registry" cmd /k "gradlew.bat bootRun"
-
-echo Waiting for Service Registry to start...
-timeout /t 15 /nobreak
-
-echo Starting Auth Service...
-cd %BASE_DIR%\auth-service
-start "Auth Service" cmd /k "gradlew.bat bootRun"
-
-echo Waiting for Auth Service to start...
-timeout /t 10 /nobreak
-
-echo Starting User Service...
-cd %BASE_DIR%\user-service
-start "User Service" cmd /k "gradlew.bat bootRun"
-
-echo Waiting for User Service to start...
-timeout /t 10 /nobreak
-
-echo Starting Post Service...
-cd %BASE_DIR%\post-service
-start "Post Service" cmd /k "gradlew.bat bootRun"
-
-echo Waiting for Post Service to start...
-timeout /t 10 /nobreak
-
-echo Starting Messaging Service...
-cd %BASE_DIR%\messaging-service
-start "Messaging Service" cmd /k "gradlew.bat bootRun"
-
-echo Waiting for Messaging Service to start...
-timeout /t 10 /nobreak
+start "Config Server" cmd /k ".\gradlew bootRun"
 
 echo Starting API Gateway...
-cd %BASE_DIR%\api-gateway
-start "API Gateway" cmd /k "gradlew.bat bootRun"
+start "API Gateway" cmd /c "cd api-gateway; .\gradlew bootRun"
+timeout /t 15
 
-echo Waiting for API Gateway to start...
-timeout /t 10 /nobreak
+echo Starting Auth Service...
+start "Auth Service" cmd /c "cd auth-service; .\gradlew bootRun"
+timeout /t 15
 
-echo Starting Flutter Web App...
-cd %BASE_DIR%\celebrate
-start "Flutter Web App" cmd /k "flutter run -d chrome"
+echo Starting User Service...
+start "User Service" cmd /c "cd user-service; .\gradlew bootRun"
+timeout /t 15
 
-cd %BASE_DIR%
+echo Starting Post Service...
+start "Post Service" cmd /c "cd post-service; .\gradlew bootRun"
+timeout /t 15
 
-echo All services started! Please wait for each service to fully initialize.
-echo You can access:
-echo - Config Server: http://localhost:8888/actuator/health
-echo - Eureka Dashboard: http://localhost:8761
-echo - API Gateway: http://localhost:8080
-echo - Flutter Web App: http://localhost:53042
+echo Starting Messaging Service...
+start "Messaging Service" cmd /c "cd messaging-service; .\gradlew bootRun"
+timeout /t 15
 
-echo To view logs, check the corresponding .log files in this directory.
+echo Starting Notification Service...
+start "Notification Service" cmd /c "cd notification-service; .\gradlew bootRun"
+timeout /t 15
 
-type config-server.log
-type service-registry.log 
+echo Starting News Feed Service...
+start "News Feed Service" cmd /c "cd news-feed-service; .\gradlew bootRun"
+timeout /t 15
+
+echo Starting Search Service...
+start "Search Service" cmd /c "cd search-service; .\gradlew bootRun"
+timeout /t 15
+
+echo Starting Rating Review Service...
+start "Rating Review Service" cmd /c "cd rating-review-service; .\gradlew bootRun"
+timeout /t 15
+
+echo Starting Award Service...
+start "Award Service" cmd /c "cd award-service; .\gradlew bootRun"
+timeout /t 15
+
+echo All services have been started. Please check individual windows for status.
+pause 

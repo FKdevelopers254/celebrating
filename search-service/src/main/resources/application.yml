@@ -10,7 +10,7 @@ spring:
     enabled: true
 
 server:
-  port: 8088
+  port: 8091
 
 eureka:
   client:

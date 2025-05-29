@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import '../AuthService.dart';
 import '../admin/celebrityprofilemanagement.dart';
-import '../celebrityfeed.dart';
+import '../homefeed.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,7 +11,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final AuthService _authService = AuthService();
   bool _isLoading = true;
   Widget? _destinationScreen;
 
@@ -23,22 +22,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _checkUserRole() async {
     try {
-      final userRole = await _authService.getCurrentUserRole();
+      final result = await AuthService.getCurrentUser();
       setState(() {
         _isLoading = false;
-        if (userRole == UserRole.celebrity) {
+        if (result['success'] && result['data']?['role'] == 'CELEBRITY') {
           _destinationScreen = const CelebrityProfile(); // For celebrities
         } else {
-          _destinationScreen = const CelebrityFeed(); // For regular users
+          _destinationScreen = const HomeFeed(); // For regular users
         }
       });
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     }
   }
 
@@ -61,9 +62,9 @@ class _HomeScreenState extends State<HomeScreen> {
               const Text('Error loading user data'),
               ElevatedButton(
                 onPressed: () async {
-                  await _authService.logout();
-                  // Navigate to login screen
-                  // You'll need to implement this navigation
+                  await AuthService.logout();
+                  if (!mounted) return;
+                  Navigator.pushReplacementNamed(context, '/login');
                 },
                 child: const Text('Logout'),
               ),

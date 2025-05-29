@@ -2,9 +2,9 @@ spring:
   application:
     name: award-service
   config:
-    import: "optional:configserver:"
+    import: "configserver:"
   datasource:
-    url: jdbc:postgresql://localhost:5432/celebrate_award
+    url: jdbc:postgresql://localhost:5432/celebrate_awards
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver

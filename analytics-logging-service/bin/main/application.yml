@@ -2,7 +2,7 @@ spring:
   application:
     name: analytics-logging-service
   config:
-    import: "optional:configserver:http://localhost:8888/"
+    import: "configserver:"
   datasource:
     url: jdbc:postgresql://localhost:5432/celebrating
     username: postgres
@@ -14,9 +14,28 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: celebrate_analytics
+      username: celebrate_user
+      password: celebrate_password
+      authentication-database: celebrate_analytics
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=1h
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: analytics-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 server:
-  port: 8091
+  port: 8088
 
 eureka:
   client:
@@ -34,4 +53,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*" 
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.celebrate.analytics: DEBUG
+    org.springframework.data.mongodb: INFO
+    org.springframework.kafka: INFO 
