@@ -30,9 +30,15 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         try {
-            String token = authService.login(credentials.get("username"), credentials.get("password"));
+            String username = credentials.get("username");
+            String password = credentials.get("password");
+            String token = authService.login(username, password);
+            // Fetch the user to get the role (assuming AuthService can retrieve the user)
+            User user = authService.findUserByUsername(username);
+            String role = user != null ? user.getRole() : "USER"; // Default to USER if no role is found
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
+            response.put("role", role);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, String> response = new HashMap<>();
@@ -40,4 +46,4 @@ public class AuthController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-} 
+}

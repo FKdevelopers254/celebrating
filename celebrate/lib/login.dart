@@ -16,10 +16,9 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  final _usernameController = TextEditingController(); // Reverted to username
   final _passwordController = TextEditingController();
   bool _isLoading = false;
-  bool _isCelebrity = false; // Track selected role
   final AuthProvider _authProvider = AuthProvider();
 
   @override
@@ -30,10 +29,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _loadRole() async {
     await _authProvider.loadToken();
-    setState(() {
-      _isCelebrity = _authProvider.role == 'CELEBRITY';
-      print('InitState: Set _isCelebrity to $_isCelebrity based on role ${_authProvider.role}');
-    });
+    setState(() {});
   }
 
   Future<void> _login() async {
@@ -42,11 +38,10 @@ class _LoginPageState extends State<LoginPage> {
 
       try {
         print('Starting login process...');
-        print('Logging in with: username=${_usernameController.text}, role=${_isCelebrity ? "CELEBRITY" : "USER"}');
+        print('Logging in with: username=${_usernameController.text}');
         final result = await AuthService.loginUser(
           _usernameController.text,
           _passwordController.text,
-          role: _isCelebrity ? "CELEBRITY" : "USER",
         );
         print('Login result: $result');
 
@@ -55,18 +50,10 @@ class _LoginPageState extends State<LoginPage> {
           await _authProvider.login(
             _usernameController.text,
             _passwordController.text,
-            selectedRole: _isCelebrity ? "CELEBRITY" : "USER",
           );
-          print('Post-login: AuthProvider role is ${_authProvider.role}, UI role is ${_isCelebrity ? "CELEBRITY" : "USER"}');
-          if (_authProvider.role != null && _authProvider.role != (_isCelebrity ? 'CELEBRITY' : 'USER')) {
-            Fluttertoast.showToast(
-              msg: 'Role mismatch. Please select the correct role: ${_authProvider.role}.',
-              backgroundColor: Colors.red,
-              toastLength: Toast.LENGTH_LONG,
-            );
-            return;
-          }
-          final destination = _isCelebrity ? const CelebrityHomePage() : const HomeFeed();
+          print('Post-login: AuthProvider role is ${_authProvider.role}');
+          final isCelebrity = _authProvider.role == 'CELEBRITY';
+          final destination = isCelebrity ? const CelebrityHomePage() : const HomeFeed();
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => destination),
@@ -144,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _usernameController.dispose(); // Reverted to username
     _passwordController.dispose();
     super.dispose();
   }
@@ -211,7 +198,7 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       children: [
         TextFormField(
-          controller: _usernameController,
+          controller: _usernameController, // Reverted to username
           decoration: InputDecoration(
             labelText: 'Username',
             labelStyle: TextStyle(color: Colors.white),
@@ -247,63 +234,6 @@ class _LoginPageState extends State<LoginPage> {
           },
         ),
         SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.white),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Account Type',
-                style: GoogleFonts.andika(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: RadioListTile<bool>(
-                      title: Text(
-                        'Regular User',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      value: false,
-                      groupValue: _isCelebrity,
-                      activeColor: Colors.white,
-                      onChanged: (value) {
-                        setState(() {
-                          _isCelebrity = value!;
-                        });
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    child: RadioListTile<bool>(
-                      title: Text(
-                        'Celebrity',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      value: true,
-                      groupValue: _isCelebrity,
-                      activeColor: Colors.white,
-                      onChanged: (value) {
-                        setState(() {
-                          _isCelebrity = value!;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

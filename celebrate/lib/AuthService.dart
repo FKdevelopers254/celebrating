@@ -181,7 +181,7 @@ class AuthService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        await _saveToken(data['token']); // Save token if present
+        await _saveToken(data['token']);
         return {
           'success': true,
           'message': 'Registration successful',
@@ -219,8 +219,7 @@ class AuthService {
   }
 
   static Future<Map<String, dynamic>> loginUser(
-      String username, String password,
-      {String role = "USER"}) async {
+      String username, String password) async {
     try {
       print('Starting login process...');
       print('Attempting login for user: $username');
@@ -262,7 +261,6 @@ class AuthService {
         body: jsonEncode({
           'username': username,
           'password': password,
-          'role': role,
         }),
       );
 
@@ -271,16 +269,15 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final storedRole = data['role'] as String?; // Get role from response
-        if (storedRole != null && storedRole.toUpperCase() != role.toUpperCase()) {
-          return {
-            'success': false,
-            'message': 'Role mismatch. Registered as $storedRole, attempted $role',
-            'details': 'Please select the correct role.'
-          };
-        }
-        await _saveToken(data['token']); // Save token if present
-        return {'success': true, 'message': 'Login successful', 'data': data};
+        await _saveToken(data['token']);
+        return {
+          'success': true,
+          'message': 'Login successful',
+          'data': {
+            'token': data['token'],
+            'role': data['role'],
+          }
+        };
       } else {
         Map<String, dynamic> error;
         try {
@@ -320,7 +317,7 @@ class AuthService {
   }
 
   static Future<Map<String, String>> getAuthHeaders() async {
-    final token = await getToken();
+    final token = await AuthService.getToken();
     return {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
