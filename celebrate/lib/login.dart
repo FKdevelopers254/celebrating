@@ -53,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
           );
           print('Post-login: AuthProvider role is ${_authProvider.role}');
           final isCelebrity = _authProvider.role == 'CELEBRITY';
-          final destination = isCelebrity ? const CelebrityHomePage() : const HomeFeed();
+          final destination = isCelebrity ? const CelebrityFeed() : const HomeFeed();
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => destination),
