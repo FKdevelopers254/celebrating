@@ -469,6 +469,8 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
   final _celebrityService = CelebrityService();
   File? _profileImage;
   bool _isLoading = false;
+  bool _isInitialized = false;
+  int? _celebrityId;
 
   // Controllers for each form field
   final TextEditingController stageNameController = TextEditingController();
@@ -496,18 +498,6 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
   final TextEditingController lifestyleDetailsController =
       TextEditingController();
   final TextEditingController philanthropyController = TextEditingController();
-  final TextEditingController socialMediaPresenceController =
-      TextEditingController();
-  final TextEditingController publicImageController = TextEditingController();
-  final TextEditingController controversiesController = TextEditingController();
-  final TextEditingController fashionStyleController = TextEditingController();
-  final TextEditingController quotesController = TextEditingController();
-  final TextEditingController tattoosController = TextEditingController();
-  final TextEditingController petsController = TextEditingController();
-  final TextEditingController favoriteThingsController =
-      TextEditingController();
-  final TextEditingController hiddenTalentsController = TextEditingController();
-  final TextEditingController fanTheoriesController = TextEditingController();
 
   // Dropdown values
   String? selectedAstrologicalSign;
@@ -546,6 +536,74 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
     // Add more nationalities as needed
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadExistingCelebrity();
+  }
+
+  Future<void> _loadExistingCelebrity() async {
+    setState(() => _isLoading = true);
+
+    try {
+      // Get current user's celebrity profile if it exists
+      final result = await _celebrityService.getCurrentCelebrityProfile();
+
+      if (result['success'] && result['data'] != null) {
+        final Celebrity celebrity = Celebrity.fromJson(result['data']);
+        _celebrityId = celebrity.id;
+
+        // Populate form fields with existing data
+        setState(() {
+          stageNameController.text = celebrity.stageName;
+          fullNameController.text = celebrity.fullName;
+          dateOfBirthController.text = celebrity.dateOfBirth;
+          placeOfBirthController.text = celebrity.placeOfBirth;
+          ethnicityController.text = celebrity.ethnicity;
+          professionController.text =
+              celebrity.professions.isNotEmpty ? celebrity.professions[0] : '';
+          debutWorkController.text =
+              celebrity.debutWorks.isNotEmpty ? celebrity.debutWorks[0] : '';
+          majorAchievementsController.text =
+              celebrity.majorAchievements.isNotEmpty
+                  ? celebrity.majorAchievements[0]
+                  : '';
+          notableProjectsController.text = celebrity.notableProjects.isNotEmpty
+              ? celebrity.notableProjects[0]
+              : '';
+          collaborationsController.text = celebrity.collaborations.isNotEmpty
+              ? celebrity.collaborations[0]
+              : '';
+          netWorthController.text = celebrity.netWorth;
+          agenciesOrLabelsController.text =
+              celebrity.agenciesOrLabels.isNotEmpty
+                  ? celebrity.agenciesOrLabels[0]
+                  : '';
+
+          selectedNationality = celebrity.nationality;
+          selectedAstrologicalSign = celebrity.astrologicalSign;
+
+          _isInitialized = true;
+        });
+
+        // Show success message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile loaded successfully')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading profile: $e')),
+        );
+      }
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -559,13 +617,11 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
 
       try {
         final celebrity = Celebrity(
-            id: 0, // Temporary ID that will be replaced by backend
+            id: _celebrityId ?? 0,
             stageName: stageNameController.text,
             fullName: fullNameController.text,
             dateOfBirth: dateOfBirthController.text,
@@ -583,39 +639,51 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
             stats: CelebrityStats(
                 postsCount: 0, followersCount: 0, followingCount: 0));
 
-        final createdCelebrity =
-            await _celebrityService.createCelebrity(celebrity);
+        final result = _celebrityId != null
+            ? await _celebrityService.updateCelebrity(_celebrityId!, celebrity)
+            : await _celebrityService.createCelebrity(celebrity);
 
         if (_profileImage != null) {
           await _celebrityService.uploadProfileImage(
-            createdCelebrity.id!,
+            result.id!,
             _profileImage!.path,
           );
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Celebrity profile created successfully!')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(_celebrityId != null
+                    ? 'Celebrity profile updated successfully!'
+                    : 'Celebrity profile created successfully!')),
+          );
+        }
 
-        // Clear form
-        _formKey.currentState!.reset();
-        setState(() {
-          _profileImage = null;
-        });
+        // Clear form only if creating new profile
+        if (_celebrityId == null) {
+          _formKey.currentState!.reset();
+          setState(() {
+            _profileImage = null;
+          });
+        }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating celebrity profile: $e')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error saving profile: $e')),
+          );
+        }
       } finally {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading && !_isInitialized) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
@@ -775,7 +843,9 @@ class _CelebrityBasicInfoState extends State<CelebrityBasicInfo> {
                 child: _isLoading
                     ? CircularProgressIndicator(color: Colors.white)
                     : Text(
-                        'Save Profile',
+                        _celebrityId != null
+                            ? 'Update Profile'
+                            : 'Save Profile',
                         style: TextStyle(fontSize: 18),
                       ),
               ),

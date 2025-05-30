@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/celebrity.dart';
 import '../utils/constants.dart';
+import '../services/auth_service.dart';
 
 class CelebrityService {
   final String? authToken;
@@ -124,12 +125,12 @@ class CelebrityService {
   // Update an existing celebrity profile
   Future<Celebrity> updateCelebrity(int id, Celebrity celebrity) async {
     try {
+      final token = await AuthService.getToken();
       final response = await http.put(
         Uri.parse('${ApiConstants.baseUrl}/api/celebrities/$id'),
         headers: {
           'Content-Type': 'application/json',
-          // Add authorization header if needed
-          // 'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $token',
         },
         body: jsonEncode(celebrity.toJson()),
       );
@@ -137,11 +138,10 @@ class CelebrityService {
       if (response.statusCode == 200) {
         return Celebrity.fromJson(jsonDecode(response.body));
       } else {
-        throw Exception(
-            'Failed to update celebrity profile: ${response.statusCode}');
+        throw Exception('Failed to update celebrity: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Failed to update celebrity profile: $e');
+      throw Exception('Failed to update celebrity: $e');
     }
   }
 
@@ -195,6 +195,40 @@ class CelebrityService {
       }
     } catch (e) {
       throw Exception('Failed to upload profile image: $e');
+    }
+  }
+
+  // Get current user's celebrity profile
+  Future<Map<String, dynamic>> getCurrentCelebrityProfile() async {
+    try {
+      final token = await AuthService.getToken();
+      final response = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/api/celebrities/me'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'success': true,
+          'data': data,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': 'Failed to load celebrity profile',
+          'error': response.body,
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error loading celebrity profile',
+        'error': e.toString(),
+      };
     }
   }
 }
